@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* RGB channel triplets so Tailwind's /opacity modifiers work on every token */
+  --paper-rgb: 250 249 247; /* warm off-white — the dominant 60% */
+  --ink-rgb: 13 13 13; /* primary text */
+  --noir-rgb: 0 0 0; /* CTAs, borders, the 10% accent */
+  --mist-rgb: 241 239 234; /* secondary surfaces — 30% */
+  --ash-rgb: 138 135 130; /* muted text */
+
+  /* Ready-to-use colours for plain CSS (var(--paper), etc.) */
+  --paper: rgb(var(--paper-rgb));
+  --ink: rgb(var(--ink-rgb));
+  --noir: rgb(var(--noir-rgb));
+  --mist: rgb(var(--mist-rgb));
+  --ash: rgb(var(--ash-rgb));
+  --hairline: rgb(var(--ink-rgb) / 0.13); /* the garment-pattern rule */
+}
+
+@layer base {
+  * {
+    border-color: var(--hairline);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-feature-settings: "ss01", "cv01";
+  }
+
+  ::selection {
+    background-color: var(--ink);
+    color: var(--paper);
+  }
+
+  /* Editorial focus ring — visible, on-brand, never removed */
+  :focus-visible {
+    outline: 2px solid var(--noir);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* Tiny tracked uppercase label — the editorial voice */
+  .eyebrow {
+    @apply text-[0.68rem] uppercase tracking-widest2 text-ash font-medium;
+  }
+
+  /* Black fill CTA — sharp corners, white text, quiet hover */
+  .btn-noir {
+    @apply inline-flex items-center justify-center gap-2 bg-noir text-paper
+      px-8 py-4 text-[0.72rem] uppercase tracking-widest2 font-semibold
+      transition-colors duration-300 ease-editorial hover:bg-ink/80
+      focus-visible:outline-offset-2;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 border border-ink
+      px-8 py-4 text-[0.72rem] uppercase tracking-widest2 font-semibold
+      transition-colors duration-300 ease-editorial hover:bg-ink hover:text-paper;
+  }
+
+  /* Full-bleed page gutter that keeps content off the edges */
+  .gutter {
+    @apply px-5 sm:px-8 lg:px-12;
+  }
+}
+
+/* Hairline grid divider used to separate product cells like a pattern sheet */
+.hairline-grid > * {
+  border-top: 1px solid var(--hairline);
+  border-left: 1px solid var(--hairline);
+}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
