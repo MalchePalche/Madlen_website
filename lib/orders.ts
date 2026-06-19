@@ -35,16 +35,24 @@ export interface NewOrder {
 }
 
 /**
- * Persist a guest order to Supabase. The id is generated client-side so we
- * don't rely on a RETURNING select (which RLS blocks for anonymous guests).
- * In mock mode (no Supabase env) this is a no-op so checkout still works.
+ * Persist an order to Supabase. The id is generated client-side so we don't
+ * rely on a RETURNING select (which RLS blocks for anonymous guests).
+ * Links the order to the signed-in user (so it shows in order history);
+ * guests fall back to null. In mock mode (no Supabase env) this is a no-op.
  */
 export async function createOrder(order: NewOrder): Promise<void> {
   if (!isSupabaseConfiguredClient()) return;
   const supabase = createClient();
+
+  // Attach the current user so the order appears in their /akaunt history.
+  // Guests stay null — both cases satisfy the orders INSERT policy.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { error } = await supabase.from("orders").insert({
     id: order.id,
-    user_id: null, // guest order; linked to a user once auth lands
+    user_id: user?.id ?? null,
     items: order.items,
     total_bgn: order.total_bgn,
     delivery_address: order.delivery_address,
