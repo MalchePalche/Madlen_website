@@ -134,7 +134,7 @@ export function BuyPanel({ product }: { product: Product }) {
         <div className="mt-7">
           <div className="flex items-center justify-between">
             <p className="text-[0.78rem] uppercase tracking-widest2 text-ash">Размер</p>
-            <Link href="/razmeri" className="text-[0.74rem] text-ash underline-offset-4 hover:text-ink hover:underline">
+            <Link href="/razmerna-tablica" className="text-[0.74rem] text-ash underline-offset-4 hover:text-ink hover:underline">
               Таблица с размери
             </Link>
           </div>

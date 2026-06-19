@@ -52,8 +52,8 @@ export const FOOTER_LINKS = [
     title: "Помощ",
     links: [
       { label: "Доставка", href: "/dostavka" },
-      { label: "Връщане", href: "/vrashtane" },
-      { label: "Размерна таблица", href: "/razmeri" },
+      { label: "Връщане", href: "/vryshtane" },
+      { label: "Размерна таблица", href: "/razmerna-tablica" },
       { label: "Контакти", href: "/kontakti" },
     ],
   },
