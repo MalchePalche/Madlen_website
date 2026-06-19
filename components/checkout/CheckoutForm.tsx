@@ -141,6 +141,20 @@ export function CheckoutForm() {
       return;
     }
 
+    // Fire the confirmation email — never block the order on email delivery.
+    if (delivery_address.email) {
+      try {
+        await fetch("/api/confirm-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, items, subtotal, delivery, total_bgn: total, delivery_address }),
+          keepalive: true,
+        });
+      } catch {
+        /* email is best-effort; the order is already placed */
+      }
+    }
+
     saveLastOrder({
       id,
       items,
