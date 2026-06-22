@@ -4,7 +4,7 @@ import type { SearchParams } from "@/lib/filters";
 
 export const metadata: Metadata = {
   title: "Ново",
-  description: "Най-новите попълнения в колекцията на Madlen.",
+  description: "Най-новите попълнения в колекцията на Noem Studio.",
 };
 
 export default function NovoPage({ searchParams }: { searchParams: SearchParams }) {

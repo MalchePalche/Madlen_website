@@ -8,7 +8,7 @@ export function Hero() {
     <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden bg-mist">
       <Image
         src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1920&q=80"
-        alt="Лятна колекция Madlen"
+        alt="Лятна колекция Noem Studio"
         fill
         priority
         sizes="100vw"

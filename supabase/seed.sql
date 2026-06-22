@@ -1,5 +1,5 @@
 -- =============================================================
--- Madlen — sample catalogue. Run after schema.sql.
+-- Noem Studio — sample catalogue. Run after schema.sql.
 -- Mirrors lib/mock-products.ts so the site looks identical with or
 -- without Supabase configured.
 -- =============================================================

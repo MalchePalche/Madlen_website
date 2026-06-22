@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, skipped: true });
   }
 
-  const from = process.env.RESEND_FROM || "Madlen <onboarding@resend.dev>";
+  const from = process.env.RESEND_FROM || "Noem Studio <onboarding@resend.dev>";
   const html = `
     <div style="font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#0d0d0d;">
       <p><strong>Ново запитване от формата за контакт</strong></p>

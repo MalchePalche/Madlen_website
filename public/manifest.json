@@ -1,7 +1,7 @@
 {
-  "name": "MADLEN Админ",
-  "short_name": "MADLEN",
-  "description": "Админ панел на MADLEN — управление на продукти и поръчки.",
+  "name": "Noem Studio Админ",
+  "short_name": "Noem Studio",
+  "description": "Админ панел на Noem Studio — управление на продукти и поръчки.",
   "lang": "bg",
   "dir": "ltr",
   "start_url": "/admin",

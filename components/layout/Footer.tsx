@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Instagram, Facebook } from "lucide-react";
 import { BRAND, FOOTER_LINKS } from "@/lib/config";
 
@@ -11,10 +12,16 @@ export function Footer() {
           <div>
             <Link
               href="/"
-              className="font-display text-3xl tracking-[0.3em]"
+              className="inline-block"
               aria-label={`${BRAND.name} — начало`}
             >
-              {BRAND.name}
+              <Image
+                src="/logo.png"
+                alt={BRAND.name}
+                width={80}
+                height={80}
+                className="h-16 w-auto brightness-0"
+              />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-ash">
               {BRAND.tagline}. Минимализъм, естествени тъкани и грижа към детайла.

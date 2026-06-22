@@ -1,4 +1,4 @@
-// Madlen PWA service worker.
+// Noem Studio PWA service worker.
 // Strategy:
 //   • Admin page navigations  → network-first, fall back to cache (offline view)
 //   • Build/static assets      → cache-first (fast repeat loads)

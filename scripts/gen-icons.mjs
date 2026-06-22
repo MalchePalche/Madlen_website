@@ -1,5 +1,5 @@
-// Dependency-free PWA icon generator for Madlen.
-// Rasterises a white "M" monogram on the brand black, then writes PNGs using
+// Dependency-free PWA icon generator for Noem Studio.
+// Rasterises a white "N" monogram on the brand black, then writes PNGs using
 // only Node's built-in zlib — no native modules (sharp/canvas) required.
 //
 //   node scripts/gen-icons.mjs
@@ -83,7 +83,7 @@ function distToSegment(px, py, ax, ay, bx, by) {
   return Math.hypot(px - cx, py - cy);
 }
 
-function renderM(size, { safe = 0.8 } = {}) {
+function renderN(size, { safe = 0.8 } = {}) {
   const rgba = Buffer.alloc(size * size * 4);
 
   // Letter box: centred, occupying `safe` of the canvas (safe zone for maskable).
@@ -92,17 +92,14 @@ function renderM(size, { safe = 0.8 } = {}) {
   const x1 = x0 + box;
   const y0 = (size - box) / 2;
   const y1 = y0 + box;
-  const xc = (x0 + x1) / 2;
-  const yValley = y0 + box * 0.62;
   const thickness = box * 0.16;
   const half = thickness / 2;
 
-  // M as four strokes: left stem, left diagonal, right diagonal, right stem.
+  // N as three strokes: left stem, top-left → bottom-right diagonal, right stem.
   const segs = [
     [x0, y1, x0, y0],
-    [x0, y0, xc, yValley],
-    [xc, yValley, x1, y0],
-    [x1, y0, x1, y1],
+    [x0, y0, x1, y1],
+    [x1, y1, x1, y0],
   ];
 
   for (let y = 0; y < size; y++) {
@@ -134,6 +131,6 @@ const targets = [
 ];
 
 for (const { file, size, safe } of targets) {
-  writeFileSync(join(OUT, file), renderM(size, { safe }));
+  writeFileSync(join(OUT, file), renderN(size, { safe }));
   console.log("wrote", join("public", "icons", file), `(${size}x${size})`);
 }

@@ -1,5 +1,5 @@
 -- =============================================================
--- Madlen — Admin panel migration
+-- Noem Studio — Admin panel migration
 -- Run AFTER schema.sql (and seed.sql) in the Supabase SQL editor.
 --
 -- schema.sql already defines the profiles.is_admin column and the

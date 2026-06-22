@@ -50,7 +50,7 @@ export function AdminShell({
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-60 flex-col border-r border-hairline bg-paper lg:flex">
         <div className="border-b border-hairline px-6 py-6">
           <Link href="/admin" className="font-display text-2xl tracking-tight">
-            MADLEN
+            NOEM STUDIO
           </Link>
           <p className="eyebrow mt-1">Админ панел</p>
         </div>
@@ -99,7 +99,7 @@ export function AdminShell({
       {/* Top bar — mobile (fixed 56px height so list headers can pin to top-14) */}
       <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-hairline bg-paper px-5 lg:hidden">
         <Link href="/admin" className="font-display text-xl">
-          MADLEN <span className="eyebrow align-middle">Админ</span>
+          NOEM STUDIO <span className="eyebrow align-middle">Админ</span>
         </Link>
         <button
           type="button"

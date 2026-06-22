@@ -1,17 +1,17 @@
 /**
- * Central brand configuration for Madlen.
+ * Central brand configuration for Noem Studio.
  * Change BRAND.name here to rebrand the entire site in one place.
  */
 export const BRAND = {
-  name: "MADLEN",
+  name: "Noem Studio",
   tagline: "Българска мода за мъже и жени",
   season: "ЛЯТО 2026",
   email: "info@madlen.bg",
   phone: "+359 88 123 4567",
   freeShippingThreshold: 100,
   social: {
-    instagram: "https://instagram.com",
-    facebook: "https://facebook.com",
+    instagram: "https://www.instagram.com/noem_studio/",
+    facebook: "https://www.facebook.com/profile.php?id=61575796677380",
     tiktok: "https://tiktok.com",
   },
   stores: [

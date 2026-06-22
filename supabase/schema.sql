@@ -1,5 +1,5 @@
 -- =============================================================
--- Madlen — Supabase schema (products, orders, profiles)
+-- Noem Studio — Supabase schema (products, orders, profiles)
 -- Run in the Supabase SQL editor, then run seed.sql for sample data.
 -- =============================================================
 

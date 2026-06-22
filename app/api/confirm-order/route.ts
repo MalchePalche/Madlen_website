@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return NextResponse.json({ skipped: true, reason: "resend_not_configured" });
 
-  const from = process.env.RESEND_FROM || "Madlen <onboarding@resend.dev>";
+  const from = process.env.RESEND_FROM || "Noem Studio <onboarding@resend.dev>";
   const { subject, html, text } = renderOrderConfirmationEmail(body);
 
   try {
