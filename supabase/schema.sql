@@ -47,8 +47,13 @@ create table if not exists public.profiles (
   full_name       text,
   phone           text,
   default_address jsonb,
+  is_admin        boolean not null default false,
   created_at      timestamptz not null default now()
 );
+
+-- Existing databases: add the admin flag if the table predates it.
+alter table public.profiles
+  add column if not exists is_admin boolean not null default false;
 
 -- Auto-create a profile row when a user signs up.
 create or replace function public.handle_new_user()
@@ -123,3 +128,6 @@ drop policy if exists "own orders select" on public.orders;
 create policy "own orders select"
   on public.orders for select
   using (auth.uid() = user_id);
+
+-- Admin read/update access to all orders is provisioned in supabase/admin.sql
+-- (run after this file) via the is_admin() helper — it powers /admin/poruchki.

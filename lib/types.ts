@@ -68,5 +68,6 @@ export interface Profile {
   full_name: string | null;
   phone: string | null;
   default_address: DeliveryAddress | null;
+  is_admin: boolean;
   created_at: string;
 }

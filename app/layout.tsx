@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import { Manrope, Prata } from "next/font/google";
 import "./globals.css";
 import { BRAND } from "@/lib/config";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
-import { CartDrawer } from "@/components/cart/CartDrawer";
+import { SiteFrame } from "@/components/layout/SiteFrame";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 
 const manrope = Manrope({
@@ -45,11 +42,7 @@ export default function RootLayout({
     <html lang="bg" className={`${manrope.variable} ${prata.variable}`}>
       <body className="font-sans antialiased">
         <AuthProvider>
-          <AnnouncementBar />
-          <Navbar />
-          <main id="content">{children}</main>
-          <Footer />
-          <CartDrawer />
+          <SiteFrame>{children}</SiteFrame>
         </AuthProvider>
       </body>
     </html>

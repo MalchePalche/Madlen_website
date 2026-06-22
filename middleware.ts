@@ -34,6 +34,22 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+
+  // ---- Admin area: require a signed-in user whose profile.is_admin is true.
+  // Non-admins (and guests) are bounced to the homepage silently.
+  if (path.startsWith("/admin")) {
+    if (!user) return NextResponse.redirect(new URL("/", request.url));
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!profile?.is_admin) return NextResponse.redirect(new URL("/", request.url));
+    return response;
+  }
+
   const needsAuth = PROTECTED_PREFIXES.some((p) => path.startsWith(p));
 
   if (needsAuth && !user) {

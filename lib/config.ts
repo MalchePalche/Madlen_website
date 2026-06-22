@@ -37,6 +37,26 @@ export const CATEGORIES = [
   { slug: "aksesoari", label: "Аксесоари" },
 ] as const;
 
+/** Gender options (admin product form + labels). */
+export const GENDER_OPTIONS = [
+  { value: "female", label: "Дамско" },
+  { value: "male", label: "Мъжко" },
+  { value: "unisex", label: "Унисекс" },
+] as const;
+
+/** Sizes offered across the catalogue (admin product form). */
+export const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL"] as const;
+
+/** Bulgarian label for a category slug, falling back to the raw slug. */
+export function categoryLabel(slug: string): string {
+  return CATEGORIES.find((c) => c.slug === slug)?.label ?? slug;
+}
+
+/** Bulgarian label for a gender value, falling back to the raw value. */
+export function genderLabel(value: string): string {
+  return GENDER_OPTIONS.find((g) => g.value === value)?.label ?? value;
+}
+
 /** Footer link columns. */
 export const FOOTER_LINKS = [
   {
