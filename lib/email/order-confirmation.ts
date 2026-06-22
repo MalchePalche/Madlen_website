@@ -1,5 +1,5 @@
 import { BRAND } from "@/lib/config";
-import { formatBGN } from "@/lib/utils";
+import { formatEUR } from "@/lib/utils";
 import type { CartItem, DeliveryAddress } from "@/lib/types";
 
 export interface OrderEmailData {
@@ -47,7 +47,7 @@ export function renderOrderConfirmationEmail(o: OrderEmailData): {
           <div style="margin-top:3px;font-size:12px;color:${ASH};">${esc(i.color)} · Размер ${esc(i.size)} · ${i.quantity} бр.</div>
         </td>
         <td style="padding:14px 0;border-bottom:1px solid ${LINE};font:400 14px/1.4 Arial,Helvetica,sans-serif;color:${INK};text-align:right;white-space:nowrap;">
-          ${esc(formatBGN(i.price_bgn * i.quantity))}
+          ${esc(formatEUR(i.price_bgn * i.quantity))}
         </td>
       </tr>`,
     )
@@ -93,9 +93,9 @@ export function renderOrderConfirmationEmail(o: OrderEmailData): {
         <!-- totals -->
         <tr><td style="padding:18px 0 0;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-            ${totalRow("Междинна сума", esc(formatBGN(o.subtotal)))}
-            ${totalRow("Доставка", o.delivery === 0 ? "Безплатна" : esc(formatBGN(o.delivery)))}
-            ${totalRow("Общо", esc(formatBGN(o.total_bgn)), { bold: true, top: true })}
+            ${totalRow("Междинна сума", esc(formatEUR(o.subtotal)))}
+            ${totalRow("Доставка", o.delivery === 0 ? "Безплатна" : esc(formatEUR(o.delivery)))}
+            ${totalRow("Общо", esc(formatEUR(o.total_bgn)), { bold: true, top: true })}
           </table>
         </td></tr>
 
@@ -141,12 +141,12 @@ export function renderOrderConfirmationEmail(o: OrderEmailData): {
     ``,
     `Продукти:`,
     ...o.items.map(
-      (i) => `- ${i.name_bg} (${i.color}, размер ${i.size}) x${i.quantity} — ${formatBGN(i.price_bgn * i.quantity)}`,
+      (i) => `- ${i.name_bg} (${i.color}, размер ${i.size}) x${i.quantity} — ${formatEUR(i.price_bgn * i.quantity)}`,
     ),
     ``,
-    `Междинна сума: ${formatBGN(o.subtotal)}`,
-    `Доставка: ${o.delivery === 0 ? "Безплатна" : formatBGN(o.delivery)}`,
-    `Общо: ${formatBGN(o.total_bgn)}`,
+    `Междинна сума: ${formatEUR(o.subtotal)}`,
+    `Доставка: ${o.delivery === 0 ? "Безплатна" : formatEUR(o.delivery)}`,
+    `Общо: ${formatEUR(o.total_bgn)}`,
     ``,
     `Плащане: Наложен платеж (в брой при доставка).`,
     ``,

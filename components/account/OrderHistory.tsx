@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Order } from "@/lib/types";
 import { ORDER_STATUS_LABELS } from "@/lib/orders";
-import { formatBGN } from "@/lib/utils";
+import { formatEUR } from "@/lib/utils";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("bg-BG", { day: "2-digit", month: "long", year: "numeric" });
@@ -32,7 +32,7 @@ export function OrderHistory({ orders }: { orders: Order[] }) {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm tabular-nums">{formatBGN(o.total_bgn)}</p>
+                  <p className="text-sm tabular-nums">{formatEUR(o.total_bgn)}</p>
                   <span className="mt-1 inline-block border border-hairline bg-mist px-2 py-0.5 text-[0.62rem] uppercase tracking-widest2 text-ash">
                     {ORDER_STATUS_LABELS[o.status]}
                   </span>

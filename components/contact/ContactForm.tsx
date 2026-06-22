@@ -1,17 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Send, CheckCircle2 } from "lucide-react";
+import { Send, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { BRAND } from "@/lib/config";
 import { isEmail, isPhone } from "@/lib/validation";
 import { TextField } from "@/components/ui/TextField";
+import { cn } from "@/lib/utils";
 
 type Field = "name" | "email" | "phone" | "message";
 
 export function ContactForm() {
   const [v, setV] = useState<Record<Field, string>>({ name: "", email: "", phone: "", message: "" });
   const [attempted, setAttempted] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const errors = {
     name: !v.name.trim() ? "Въведете име" : undefined,
@@ -23,26 +26,30 @@ export function ContactForm() {
   const set = (k: Field) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setV((prev) => ({ ...prev, [k]: e.target.value }));
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAttempted(true);
+    setError(null);
     if (errors.name || errors.email || errors.phone || errors.message) return;
 
-    const subject = `Запитване от ${v.name.trim()}`;
-    const body = [
-      `Име: ${v.name.trim()}`,
-      `Имейл: ${v.email.trim()}`,
-      v.phone.trim() ? `Телефон: ${v.phone.trim()}` : null,
-      "",
-      v.message.trim(),
-    ]
-      .filter((l) => l !== null)
-      .join("\n");
-
-    window.location.href = `mailto:${BRAND.email}?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(body)}`;
-    setSent(true);
+    setBusy(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: v.name.trim(),
+          email: v.email.trim(),
+          phone: v.phone.trim(),
+          message: v.message.trim(),
+        }),
+      });
+      if (!res.ok) throw new Error("request failed");
+      setSent(true);
+    } catch {
+      setBusy(false);
+      setError("Съобщението не беше изпратено. Опитайте отново или ни пишете директно.");
+    }
   };
 
   if (sent) {
@@ -50,8 +57,8 @@ export function ContactForm() {
       <div className="flex items-start gap-3 border border-hairline bg-mist p-6 text-sm">
         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.5} />
         <p className="leading-relaxed">
-          Отворихме вашия имейл клиент с попълненото съобщение. Ако това не се случи автоматично,
-          пишете ни директно на{" "}
+          Благодарим! Получихме съобщението ви и ще се свържем с вас възможно най-скоро. При спешност
+          ни пишете директно на{" "}
           <a href={`mailto:${BRAND.email}`} className="text-ink underline underline-offset-4">
             {BRAND.email}
           </a>
@@ -82,12 +89,23 @@ export function ContactForm() {
         {show("message") && <p className="mt-1.5 text-[0.74rem] text-[#8a2b2b]">{show("message")}</p>}
       </div>
 
-      <button type="submit" className="btn-noir w-full">
-        <Send className="h-4 w-4" strokeWidth={1.6} /> Изпрати съобщение
+      {error && (
+        <p role="alert" className="flex items-center gap-2 text-sm text-[#8a2b2b]">
+          <AlertCircle className="h-4 w-4" strokeWidth={1.6} /> {error}
+        </p>
+      )}
+
+      <button type="submit" disabled={busy} className={cn("btn-noir w-full", busy && "opacity-70")}>
+        {busy ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} /> Изпращане…
+          </>
+        ) : (
+          <>
+            <Send className="h-4 w-4" strokeWidth={1.6} /> Изпрати съобщение
+          </>
+        )}
       </button>
-      <p className="text-center text-[0.72rem] text-ash">
-        Формата отваря вашия имейл клиент — не съхраняваме данни на сървър.
-      </p>
     </form>
   );
 }

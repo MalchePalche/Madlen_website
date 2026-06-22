@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { CartItem } from "@/lib/types";
-import { formatBGN } from "@/lib/utils";
+import { formatEUR } from "@/lib/utils";
 
 export function OrderSummary({
   items,
@@ -35,7 +35,7 @@ export function OrderSummary({
               </p>
             </div>
             <span className="self-center text-sm tabular-nums">
-              {formatBGN(item.price_bgn * item.quantity)}
+              {formatEUR(item.price_bgn * item.quantity)}
             </span>
           </li>
         ))}
@@ -44,15 +44,15 @@ export function OrderSummary({
       <dl className="mt-5 space-y-2 border-t border-hairline pt-5 text-sm">
         <div className="flex justify-between">
           <dt className="text-ash">Междинна сума</dt>
-          <dd className="tabular-nums">{formatBGN(subtotal)}</dd>
+          <dd className="tabular-nums">{formatEUR(subtotal)}</dd>
         </div>
         <div className="flex justify-between">
           <dt className="text-ash">Доставка</dt>
-          <dd className="tabular-nums">{delivery === 0 ? "Безплатна" : formatBGN(delivery)}</dd>
+          <dd className="tabular-nums">{delivery === 0 ? "Безплатна" : formatEUR(delivery)}</dd>
         </div>
         <div className="flex items-baseline justify-between border-t border-hairline pt-3">
           <dt className="text-[0.8rem] uppercase tracking-widest2 font-semibold">Общо</dt>
-          <dd className="font-display text-xl tabular-nums">{formatBGN(total)}</dd>
+          <dd className="font-display text-xl tabular-nums">{formatEUR(total)}</dd>
         </div>
       </dl>
     </div>

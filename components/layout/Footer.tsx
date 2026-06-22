@@ -89,7 +89,7 @@ export function Footer() {
           <p>
             © {new Date().getFullYear()} {BRAND.name}. Всички права запазени.
           </p>
-          <p className="flex gap-5">
+          <p className="flex flex-wrap gap-x-5 gap-y-2">
             <Link href="/obshti-usloviya" className="hover:text-ink">
               Общи условия
             </Link>

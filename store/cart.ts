@@ -79,6 +79,6 @@ export const cartLineKey = lineKey;
 export const selectCount = (s: CartState) =>
   s.items.reduce((n, i) => n + i.quantity, 0);
 
-/** Subtotal in BGN. */
+/** Subtotal in EUR. */
 export const selectSubtotal = (s: CartState) =>
   s.items.reduce((sum, i) => sum + i.price_bgn * i.quantity, 0);

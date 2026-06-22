@@ -5,7 +5,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ChevronDown, SlidersHorizontal, X, Check } from "lucide-react";
 import type { Facets } from "@/lib/filters";
 import { SORT_OPTIONS, type SortKey } from "@/lib/filters";
-import { cn, formatBGN } from "@/lib/utils";
+import { cn, formatEUR } from "@/lib/utils";
 
 type FilterKey = "cat" | "size" | "color" | "price";
 
@@ -215,7 +215,7 @@ export function FilterBar({
         />
       </div>
       <p className="mt-2 text-[0.72rem] text-ash">
-        Налични: {formatBGN(facets.priceBounds.min)} – {formatBGN(facets.priceBounds.max)}
+        Налични: {formatEUR(facets.priceBounds.min)} – {formatEUR(facets.priceBounds.max)}
       </p>
       <button type="button" onClick={applyPrice} className="btn-noir mt-3 w-full py-3">
         Приложи
@@ -322,8 +322,8 @@ export function FilterBar({
           ))}
           {(minPrice || maxPrice) && (
             <Chip
-              label={`${minPrice ? formatBGN(Number(minPrice)) : "0 лв"} – ${
-                maxPrice ? formatBGN(Number(maxPrice)) : "∞"
+              label={`${minPrice ? formatEUR(Number(minPrice)) : "0 €"} – ${
+                maxPrice ? formatEUR(Number(maxPrice)) : "∞"
               }`}
               onRemove={() => {
                 const next = copy();

@@ -57,6 +57,42 @@ export async function getRelatedProducts(product: Product, limit = 4): Promise<P
   return [...sameCat, ...others].slice(0, limit);
 }
 
+/** Full-text-ish search over product names (Bulgarian + English). */
+export async function searchProducts(query: string, limit = 24): Promise<Product[]> {
+  const q = query.trim();
+  if (!q) return [];
+
+  const matchMock = () => {
+    const lower = q.toLowerCase();
+    return MOCK_PRODUCTS.filter(
+      (p) =>
+        p.name_bg.toLowerCase().includes(lower) ||
+        p.name_en.toLowerCase().includes(lower) ||
+        p.category.toLowerCase().includes(lower),
+    ).slice(0, limit);
+  };
+
+  if (!isSupabaseConfigured()) return matchMock();
+
+  try {
+    const supabase = createClient();
+    // strip characters that would break the PostgREST or-filter grammar
+    const safe = q.replace(/[%,()]/g, " ").trim();
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .or(`name_bg.ilike.%${safe}%,name_en.ilike.%${safe}%`)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    // Only degrade to mock on a real failure — an empty result is a valid
+    // "no matches" and must surface the empty state.
+    if (error) return matchMock();
+    return (data as Product[]) ?? [];
+  } catch {
+    return matchMock();
+  }
+}
+
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (!isSupabaseConfigured()) {
     return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;

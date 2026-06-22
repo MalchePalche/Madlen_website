@@ -37,16 +37,16 @@ export default async function ProductPage({ params }: { params: { slug: string }
   return (
     <article className="gutter mx-auto max-w-edge pb-20 pt-6 lg:pt-8">
       {/* breadcrumb */}
-      <nav aria-label="Навигация" className="flex items-center gap-1.5 text-[0.74rem] text-ash">
-        <Link href="/" className="hover:text-ink">
+      <nav aria-label="Навигация" className="flex min-w-0 items-center gap-1.5 text-[0.74rem] text-ash">
+        <Link href="/" className="shrink-0 whitespace-nowrap hover:text-ink">
           Начало
         </Link>
-        <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
-        <Link href={gender.href} className="hover:text-ink">
+        <ChevronRight className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
+        <Link href={gender.href} className="shrink-0 whitespace-nowrap hover:text-ink">
           {gender.label}
         </Link>
-        <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
-        <span className="truncate text-ink">{product.name_bg}</span>
+        <ChevronRight className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
+        <span className="min-w-0 truncate text-ink">{product.name_bg}</span>
       </nav>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:gap-12">

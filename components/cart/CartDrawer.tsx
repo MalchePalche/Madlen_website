@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { X, Plus, Minus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart, cartLineKey, selectSubtotal, selectCount } from "@/store/cart";
 import { BRAND } from "@/lib/config";
-import { formatBGN } from "@/lib/utils";
+import { formatEUR } from "@/lib/utils";
 
 export function CartDrawer() {
   const isOpen = useCart((s) => s.isOpen);
@@ -85,7 +85,7 @@ export function CartDrawer() {
                   <p className="text-[0.74rem] text-ash">
                     {remaining > 0 ? (
                       <>
-                        Още <span className="font-semibold text-ink">{formatBGN(remaining)}</span> до безплатна доставка
+                        Още <span className="font-semibold text-ink">{formatEUR(remaining)}</span> до безплатна доставка
                       </>
                     ) : (
                       <span className="font-semibold text-ink">Имате безплатна доставка 🎉</span>
@@ -156,7 +156,7 @@ export function CartDrawer() {
                               </button>
                             </div>
                             <span className="text-sm font-medium tabular-nums">
-                              {formatBGN(item.price_bgn * item.quantity)}
+                              {formatEUR(item.price_bgn * item.quantity)}
                             </span>
                           </div>
                         </div>
@@ -169,7 +169,7 @@ export function CartDrawer() {
                 <div className="border-t border-hairline px-6 py-5">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-ash">Междинна сума</span>
-                    <span className="font-display text-xl tabular-nums">{formatBGN(subtotal)}</span>
+                    <span className="font-display text-xl tabular-nums">{formatEUR(subtotal)}</span>
                   </div>
                   <p className="mt-1 text-[0.72rem] text-ash">
                     Доставката се изчислява на следваща стъпка · Плащане при доставка.

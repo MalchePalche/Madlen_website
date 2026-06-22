@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ContentPage, Section, Bullets } from "@/components/content/ContentPage";
 import { BRAND } from "@/lib/config";
 import { DELIVERY_FEE } from "@/lib/orders";
-import { formatBGN } from "@/lib/utils";
+import { formatEUR } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Доставка",
@@ -34,11 +34,11 @@ export default function DeliveryPage() {
           items={[
             <>
               Стандартна доставка с куриер:{" "}
-              <strong className="font-medium text-ink">{formatBGN(DELIVERY_FEE)}</strong>
+              <strong className="font-medium text-ink">{formatEUR(DELIVERY_FEE)}</strong>
             </>,
             <>
               <strong className="font-medium text-ink">Безплатна доставка</strong> за поръчки над{" "}
-              {BRAND.freeShippingThreshold} лв
+              {BRAND.freeShippingThreshold} €
             </>,
             <>Доставка до адрес или до офис на куриера — по ваш избор</>,
           ]}

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCart } from "@/store/cart";
-import { formatBGN } from "@/lib/utils";
+import { formatEUR } from "@/lib/utils";
 
 export function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const addItem = useCart((s) => s.addItem);
@@ -86,10 +86,10 @@ export function ProductCard({ product, priority = false }: { product: Product; p
             {product.name_bg}
           </Link>
           <div className="shrink-0 text-right">
-            <span className="text-[0.82rem] tabular-nums">{formatBGN(product.price_bgn)}</span>
+            <span className="text-[0.82rem] tabular-nums">{formatEUR(product.price_bgn)}</span>
             {onSale && (
               <span className="ml-1.5 text-[0.72rem] text-ash line-through tabular-nums">
-                {formatBGN(product.compare_at_bgn!)}
+                {formatEUR(product.compare_at_bgn!)}
               </span>
             )}
           </div>

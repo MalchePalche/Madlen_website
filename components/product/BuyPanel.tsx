@@ -6,7 +6,7 @@ import { Check, Truck, RotateCcw, Banknote } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCart } from "@/store/cart";
 import { CATEGORIES } from "@/lib/config";
-import { formatBGN, cn } from "@/lib/utils";
+import { formatEUR, cn } from "@/lib/utils";
 import { Accordion } from "@/components/ui/Accordion";
 
 export function BuyPanel({ product }: { product: Product }) {
@@ -76,7 +76,7 @@ export function BuyPanel({ product }: { product: Product }) {
         <ul className="space-y-1.5">
           <li>Доставка до адрес или офис на куриер за 1–3 работни дни.</li>
           <li>Плащане при доставка (наложен платеж) — без карта.</li>
-          <li>Безплатна доставка над 100 лв. Връщане до 30 дни.</li>
+          <li>Безплатна доставка над 100 €. Връщане до 30 дни.</li>
         </ul>
       ),
     },
@@ -89,11 +89,11 @@ export function BuyPanel({ product }: { product: Product }) {
 
       {/* price */}
       <div className="mt-4 flex items-center gap-3">
-        <span className="text-xl tabular-nums">{formatBGN(product.price_bgn)}</span>
+        <span className="text-xl tabular-nums">{formatEUR(product.price_bgn)}</span>
         {onSale && (
           <>
             <span className="text-sm text-ash line-through tabular-nums">
-              {formatBGN(product.compare_at_bgn!)}
+              {formatEUR(product.compare_at_bgn!)}
             </span>
             <span className="bg-noir px-2 py-0.5 text-[0.62rem] uppercase tracking-widest2 text-paper">
               −{discount}%
