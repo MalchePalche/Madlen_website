@@ -2,7 +2,7 @@ import { createClient, isSupabaseConfiguredClient } from "./supabase/client";
 import { BRAND } from "./config";
 import type { CartItem, DeliveryAddress, OrderStatus } from "./types";
 
-/** Flat delivery fee in BGN, waived above the free-shipping threshold. */
+/** Flat delivery fee in EUR, waived above the free-shipping threshold. */
 export const DELIVERY_FEE = 5.99;
 
 export function deliveryCost(subtotal: number): number {
@@ -17,6 +17,21 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   delivered: "Доставена",
   cancelled: "Отказана",
 };
+
+/** All statuses in fulfilment order — drives the admin status filter/sort/dropdown. */
+export const ORDER_STATUSES: OrderStatus[] = [
+  "pending",
+  "confirmed",
+  "shipped",
+  "delivered",
+  "cancelled",
+];
+
+/** Rank a status for sorting (follows the fulfilment lifecycle). */
+export function orderStatusRank(status: OrderStatus): number {
+  const i = ORDER_STATUSES.indexOf(status);
+  return i === -1 ? ORDER_STATUSES.length : i;
+}
 
 /** RFC4122 id, with a fallback for non-secure contexts. */
 export function newOrderId(): string {
