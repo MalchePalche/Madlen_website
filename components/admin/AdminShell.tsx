@@ -45,7 +45,7 @@ export function AdminShell({
   };
 
   return (
-    <div className="min-h-screen bg-paper">
+    <div data-admin className="min-h-dvh bg-paper">
       {/* Sidebar — desktop */}
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-60 flex-col border-r border-hairline bg-paper lg:flex">
         <div className="border-b border-hairline px-6 py-6">
@@ -96,8 +96,8 @@ export function AdminShell({
         </div>
       </aside>
 
-      {/* Top bar — mobile */}
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-hairline bg-paper px-5 py-4 lg:hidden">
+      {/* Top bar — mobile (fixed 56px height so list headers can pin to top-14) */}
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-hairline bg-paper px-5 lg:hidden">
         <Link href="/admin" className="font-display text-xl">
           MADLEN <span className="eyebrow align-middle">Админ</span>
         </Link>
@@ -106,29 +106,49 @@ export function AdminShell({
           onClick={onSignOut}
           disabled={busy}
           aria-label="Изход"
-          className="text-ash transition-colors hover:text-ink disabled:opacity-60"
+          className="-mr-2 inline-flex h-11 w-11 items-center justify-center text-ash transition-colors hover:text-ink disabled:opacity-60"
         >
           <LogOut className="h-5 w-5" strokeWidth={1.6} />
         </button>
       </header>
-      <nav className="flex gap-1 overflow-x-auto border-b border-hairline bg-paper px-3 py-2 lg:hidden">
-        {NAV.map(({ href, label, icon: Icon, exact }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              "flex shrink-0 items-center gap-2 whitespace-nowrap px-3 py-2 text-[0.78rem] transition-colors",
-              isActive(href, exact) ? "bg-noir text-paper" : "text-ink hover:bg-mist",
-            )}
-          >
-            <Icon className="h-3.5 w-3.5" strokeWidth={1.6} />
-            {label}
-          </Link>
-        ))}
-      </nav>
 
-      {/* Content — each page owns its own padding (matches the orders pages). */}
-      <main className="lg:pl-60">{children}</main>
+      {/* Content — each page owns its own padding (matches the orders pages).
+          Mobile keeps room for the fixed bottom nav + the home-indicator inset. */}
+      <main className="pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0 lg:pl-60">
+        {children}
+      </main>
+
+      {/* Bottom navigation — mobile, native-app style */}
+      <nav
+        aria-label="Основна навигация"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t border-hairline bg-paper/95 backdrop-blur lg:hidden"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        {NAV.map(({ href, label, icon: Icon, exact }) => {
+          const active = isActive(href, exact);
+          return (
+            <Link
+              key={href}
+              href={href}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "relative flex min-h-[56px] flex-col items-center justify-center gap-1 text-[0.6rem] uppercase tracking-widest2 transition-colors",
+                active ? "text-ink" : "text-ash",
+              )}
+            >
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute inset-x-6 top-0 h-0.5 transition-colors",
+                  active ? "bg-noir" : "bg-transparent",
+                )}
+              />
+              <Icon className="h-[1.35rem] w-[1.35rem]" strokeWidth={active ? 2 : 1.6} />
+              {label}
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ProductTable } from "@/components/admin/ProductTable";
+import { PullToRefresh, RefreshButton } from "@/components/admin/PullToRefresh";
 import type { Product } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -15,21 +16,26 @@ export default async function AdminProductsPage() {
   const products = (data ?? []) as Product[];
 
   return (
-    <div className="p-6 lg:p-8">
-      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-hairline pb-6">
-        <div>
-          <p className="eyebrow">{products.length} продукта</p>
-          <h1 className="mt-2 font-display text-3xl lg:text-4xl">Продукти</h1>
-        </div>
-        <Link href="/admin/prodakti/nov" className="btn-noir">
-          <Plus className="h-4 w-4" strokeWidth={2} />
-          Нов продукт
-        </Link>
-      </header>
+    <PullToRefresh>
+      <div className="lg:p-8">
+        <header className="sticky top-14 z-30 flex flex-wrap items-end justify-between gap-3 border-b border-hairline bg-paper px-5 py-4 lg:static lg:px-0 lg:py-0 lg:pb-6">
+          <div>
+            <p className="eyebrow">{products.length} продукта</p>
+            <h1 className="mt-1 font-display text-2xl lg:mt-2 lg:text-4xl">Продукти</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <RefreshButton />
+            <Link href="/admin/prodakti/nov" className="btn-noir">
+              <Plus className="h-4 w-4" strokeWidth={2} />
+              Нов продукт
+            </Link>
+          </div>
+        </header>
 
-      <div className="mt-8">
-        <ProductTable products={products} />
+        <div className="px-5 pb-6 pt-6 lg:px-0 lg:pb-0 lg:pt-8">
+          <ProductTable products={products} />
+        </div>
       </div>
-    </div>
+    </PullToRefresh>
   );
 }

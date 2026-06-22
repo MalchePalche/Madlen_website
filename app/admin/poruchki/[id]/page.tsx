@@ -47,10 +47,10 @@ export default async function AdminOrderDetailPage({
   const delivery = recovered >= 0 ? recovered : deliveryCost(subtotal);
 
   return (
-    <div>
+    <div className="p-5 lg:p-8">
       <Link
         href="/admin/poruchki"
-        className="inline-flex items-center gap-1 text-[0.72rem] uppercase tracking-widest2 text-ash hover:text-ink"
+        className="inline-flex min-h-[44px] items-center gap-1 text-[0.72rem] uppercase tracking-widest2 text-ash hover:text-ink"
       >
         <ChevronLeft className="h-4 w-4" strokeWidth={1.6} /> Назад към поръчките
       </Link>
@@ -73,7 +73,28 @@ export default async function AdminOrderDetailPage({
             Артикули ({order.items.length})
           </h2>
 
-          <div className="overflow-x-auto">
+          {/* Mobile — stacked item list (no horizontal scroll) */}
+          <ul className="divide-y divide-hairline lg:hidden">
+            {order.items.map((item) => (
+              <li
+                key={`${item.productId}-${item.size}-${item.color}`}
+                className="flex items-start justify-between gap-3 px-5 py-4"
+              >
+                <div className="min-w-0">
+                  <p className="font-medium leading-snug">{item.name_bg}</p>
+                  <p className="mt-1 text-[0.78rem] text-ash">
+                    {item.color} · {item.size} · {item.quantity} бр.
+                  </p>
+                </div>
+                <span className="shrink-0 tabular-nums">
+                  {formatEUR(item.price_bgn * item.quantity)}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          {/* Desktop — table */}
+          <div className="hidden overflow-x-auto lg:block">
             <table className="w-full min-w-[34rem] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-hairline text-left text-[0.66rem] uppercase tracking-widest2 text-ash">
@@ -139,14 +160,20 @@ export default async function AdminOrderDetailPage({
               </p>
               <p className="flex items-start gap-2.5">
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-ash" strokeWidth={1.5} />
-                <a href={`tel:${a.phone}`} className="tabular-nums hover:underline">
+                <a
+                  href={`tel:${a.phone}`}
+                  className="-my-1 inline-block py-1 tabular-nums hover:underline"
+                >
                   {a.phone}
                 </a>
               </p>
               {a.email && (
                 <p className="flex items-start gap-2.5">
                   <Mail className="mt-0.5 h-4 w-4 shrink-0 text-ash" strokeWidth={1.5} />
-                  <a href={`mailto:${a.email}`} className="break-all hover:underline">
+                  <a
+                    href={`mailto:${a.email}`}
+                    className="-my-1 inline-block break-all py-1 hover:underline"
+                  >
                     {a.email}
                   </a>
                 </p>

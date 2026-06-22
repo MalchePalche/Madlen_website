@@ -53,25 +53,34 @@ export function OrderStatusForm({
   return (
     <form onSubmit={onSave} className="space-y-4">
       <div>
-        <label
-          htmlFor="order-status"
-          className="block text-[0.68rem] uppercase tracking-widest2 text-ash mb-1.5"
-        >
+        <p className="mb-2 block text-[0.68rem] uppercase tracking-widest2 text-ash">
           Статус на поръчката
-        </label>
-        <select
-          id="order-status"
-          value={status}
-          onChange={(e) => setStatus(e.target.value as OrderStatus)}
-          disabled={busy}
-          className="w-full border border-hairline bg-paper px-3.5 py-3 text-sm focus:outline-none focus-visible:outline-2 focus-visible:outline-noir"
-        >
-          {ORDER_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {ORDER_STATUS_LABELS[s]}
-            </option>
-          ))}
-        </select>
+        </p>
+        {/* Segmented control — large tap targets instead of a native dropdown */}
+        <div role="radiogroup" aria-label="Статус на поръчката" className="grid gap-2">
+          {ORDER_STATUSES.map((s) => {
+            const selected = status === s;
+            return (
+              <button
+                key={s}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                disabled={busy}
+                onClick={() => setStatus(s)}
+                className={cn(
+                  "flex min-h-[48px] items-center justify-between border px-4 py-3 text-sm transition-colors disabled:opacity-60",
+                  selected
+                    ? "border-noir bg-noir text-paper"
+                    : "border-hairline hover:border-ink",
+                )}
+              >
+                <span>{ORDER_STATUS_LABELS[s]}</span>
+                {selected && <Check className="h-4 w-4" strokeWidth={2} />}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {error && (

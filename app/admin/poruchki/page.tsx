@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import type { Order } from "@/lib/types";
 import { OrdersTable } from "@/components/admin/OrdersTable";
+import { PullToRefresh, RefreshButton } from "@/components/admin/PullToRefresh";
 
 export const metadata: Metadata = { title: "Поръчки — Админ", robots: { index: false } };
 
@@ -18,17 +19,22 @@ export default async function AdminOrdersPage() {
   const orders = (data ?? []) as Order[];
 
   return (
-    <div>
-      <header className="border-b border-hairline pb-6">
-        <p className="eyebrow">
-          {orders.length} {orders.length === 1 ? "поръчка" : "поръчки"}
-        </p>
-        <h1 className="mt-2 font-display text-4xl lg:text-5xl">Поръчки</h1>
-      </header>
+    <PullToRefresh>
+      <div className="lg:p-8">
+        <header className="sticky top-14 z-30 flex items-end justify-between gap-3 border-b border-hairline bg-paper px-5 py-4 lg:static lg:px-0 lg:py-0 lg:pb-6">
+          <div>
+            <p className="eyebrow">
+              {orders.length} {orders.length === 1 ? "поръчка" : "поръчки"}
+            </p>
+            <h1 className="mt-1 font-display text-2xl lg:mt-2 lg:text-5xl">Поръчки</h1>
+          </div>
+          <RefreshButton />
+        </header>
 
-      <div className="mt-8">
-        <OrdersTable orders={orders} />
+        <div className="px-5 pb-6 pt-6 lg:px-0 lg:pb-0 lg:pt-8">
+          <OrdersTable orders={orders} />
+        </div>
       </div>
-    </div>
+    </PullToRefresh>
   );
 }

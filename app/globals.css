@@ -27,6 +27,9 @@
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Keep text at its intended size on mobile — never let the OS inflate it. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
@@ -77,6 +80,16 @@
 .hairline-grid > * {
   border-top: 1px solid var(--hairline);
   border-left: 1px solid var(--hairline);
+}
+
+/* Admin (PWA) — keep form controls at 16px on phones so iOS doesn't zoom on
+   focus. Scoped to [data-admin] so the storefront keeps its smaller inputs. */
+@media (max-width: 1023px) {
+  [data-admin] input,
+  [data-admin] select,
+  [data-admin] textarea {
+    font-size: 16px;
+  }
 }
 
 /* Respect users who prefer less motion */

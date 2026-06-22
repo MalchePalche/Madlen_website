@@ -156,8 +156,48 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
         {rows.length} {rows.length === 1 ? "поръчка" : "поръчки"}
       </p>
 
-      {/* ---- Table ---- */}
-      <div className="mt-3 overflow-x-auto border border-hairline">
+      {/* ---- Mobile: tappable cards ---- */}
+      <ul className="mt-3 space-y-3 lg:hidden">
+        {rows.map((o) => (
+          <li key={o.id}>
+            <button
+              type="button"
+              onClick={() => router.push(`/admin/poruchki/${o.id}`)}
+              aria-label={`Поръчка ${o.id.slice(0, 8).toUpperCase()}`}
+              className="flex w-full flex-col gap-2 border border-hairline bg-paper p-4 text-left transition-colors active:bg-mist/60"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-medium tracking-widest2">
+                  #{o.id.slice(0, 8).toUpperCase()}
+                </span>
+                <StatusBadge status={o.status} />
+              </div>
+              <span className="text-sm">{customerName(o)}</span>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[0.78rem] tabular-nums text-ash">
+                  {formatDateTime(o.created_at)}
+                </span>
+                <span className="font-display text-base tabular-nums">
+                  {formatEUR(o.total_bgn)}
+                </span>
+              </div>
+            </button>
+          </li>
+        ))}
+        {rows.length === 0 && (
+          <li className="flex flex-col items-center gap-3 border border-hairline bg-paper py-16 text-center">
+            <PackageOpen className="h-8 w-8 text-ash" strokeWidth={1} />
+            <p className="px-6 text-sm text-ash">
+              {orders.length === 0
+                ? "Все още няма поръчки."
+                : "Няма поръчки за избраните филтри."}
+            </p>
+          </li>
+        )}
+      </ul>
+
+      {/* ---- Desktop: table ---- */}
+      <div className="mt-3 hidden overflow-x-auto border border-hairline lg:block">
         <table className="w-full min-w-[52rem] border-collapse text-sm">
           <thead>
             <tr className="border-b border-hairline bg-mist text-left text-[0.68rem] uppercase tracking-widest2 text-ash">

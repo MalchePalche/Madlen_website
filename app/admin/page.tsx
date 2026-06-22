@@ -16,12 +16,14 @@ function StatCard({
   icon: LucideIcon;
 }) {
   return (
-    <div className="border border-hairline bg-paper p-6">
-      <div className="flex items-center justify-between">
+    <div className="flex min-h-[7rem] flex-col justify-between border border-hairline bg-paper p-5 lg:min-h-0 lg:p-6">
+      <div className="flex items-center justify-between gap-2">
         <p className="eyebrow">{label}</p>
-        <Icon className="h-4 w-4 text-ash" strokeWidth={1.6} />
+        <Icon className="h-4 w-4 shrink-0 text-ash" strokeWidth={1.6} />
       </div>
-      <p className="mt-4 font-display text-4xl tabular-nums">{value}</p>
+      <p className="mt-5 break-words font-display text-2xl leading-none tabular-nums sm:text-3xl lg:mt-4 lg:text-4xl">
+        {value}
+      </p>
     </div>
   );
 }
@@ -49,7 +51,7 @@ export default async function AdminDashboard() {
         <h1 className="mt-2 font-display text-3xl lg:text-4xl">Табло</h1>
       </header>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard label="Поръчки" value={String(totalOrders)} icon={ShoppingBag} />
         <StatCard label="Приходи" value={formatEUR(revenue)} icon={Banknote} />
         <StatCard label="В обработка" value={String(pendingOrders)} icon={Clock} />

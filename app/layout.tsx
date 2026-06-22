@@ -53,6 +53,8 @@ export const viewport: Viewport = {
   themeColor: "#000000",
   width: "device-width",
   initialScale: 1,
+  // Extend under the iPhone notch/home indicator so safe-area insets resolve.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

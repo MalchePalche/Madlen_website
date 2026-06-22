@@ -211,14 +211,14 @@ export function ProductForm({ product }: { product?: Product }) {
       {/* Sizes */}
       <div>
         <span className={LABEL}>Размери</span>
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="mt-2 grid grid-cols-5 gap-2 sm:flex sm:flex-wrap">
           {SIZE_OPTIONS.map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => toggleSize(s)}
               className={cn(
-                "min-w-[3rem] border px-4 py-2.5 text-sm transition-colors",
+                "flex min-h-[44px] items-center justify-center border px-2 text-sm transition-colors sm:min-w-[3.25rem] sm:px-4",
                 sizes.includes(s)
                   ? "border-noir bg-noir text-paper"
                   : "border-hairline hover:border-ink",
@@ -283,24 +283,25 @@ export function ProductForm({ product }: { product?: Product }) {
                     Основна
                   </span>
                 )}
-                <div className="absolute inset-x-0 bottom-0 flex justify-between gap-1 bg-noir/50 p-1 opacity-0 transition-opacity group-hover:opacity-100">
+                {/* Actions are always visible on touch (no hover); fade-on-hover on desktop. */}
+                <div className="absolute inset-x-0 bottom-0 flex justify-between gap-1 bg-noir/50 p-1.5 opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100">
                   {i !== 0 && (
                     <button
                       type="button"
                       onClick={() => makePrimary(url)}
                       aria-label="Направи основна"
-                      className="inline-flex h-6 w-6 items-center justify-center bg-paper text-ink"
+                      className="inline-flex h-9 w-9 items-center justify-center bg-paper text-ink lg:h-7 lg:w-7"
                     >
-                      <Star className="h-3.5 w-3.5" strokeWidth={1.6} />
+                      <Star className="h-4 w-4" strokeWidth={1.6} />
                     </button>
                   )}
                   <button
                     type="button"
                     onClick={() => removeImage(url)}
                     aria-label="Премахни снимка"
-                    className="ml-auto inline-flex h-6 w-6 items-center justify-center bg-paper text-[#8a2b2b]"
+                    className="ml-auto inline-flex h-9 w-9 items-center justify-center bg-paper text-[#8a2b2b] lg:h-7 lg:w-7"
                   >
-                    <X className="h-3.5 w-3.5" strokeWidth={1.6} />
+                    <X className="h-4 w-4" strokeWidth={1.6} />
                   </button>
                 </div>
               </div>
@@ -310,17 +311,17 @@ export function ProductForm({ product }: { product?: Product }) {
 
         <label
           className={cn(
-            "mt-3 flex cursor-pointer items-center justify-center gap-2 border border-dashed border-hairline px-4 py-6 text-sm text-ash transition-colors hover:border-ink hover:text-ink",
+            "mt-3 flex min-h-[7rem] cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-hairline px-4 py-8 text-sm text-ash transition-colors hover:border-ink hover:text-ink active:border-ink",
             uploading && "pointer-events-none opacity-60",
           )}
         >
           {uploading ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" /> Качване…
+              <Loader2 className="h-6 w-6 animate-spin" /> Качване…
             </>
           ) : (
             <>
-              <Upload className="h-4 w-4" strokeWidth={1.6} /> Качи снимки
+              <Upload className="h-6 w-6" strokeWidth={1.4} /> Качи снимки
             </>
           )}
           <input

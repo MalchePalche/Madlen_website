@@ -45,7 +45,60 @@ export function ProductTable({ products }: { products: Product[] }) {
 
   return (
     <>
-      <div className="overflow-x-auto border border-hairline bg-paper">
+      {/* Mobile — card list (one tappable card per product) */}
+      <ul className="space-y-3 lg:hidden">
+        {products.map((p) => (
+          <li key={p.id} className="flex gap-3 border border-hairline bg-paper p-3">
+            <div className="relative h-[5.5rem] w-[4.25rem] shrink-0 overflow-hidden bg-mist">
+              {p.images[0] && (
+                <Image src={p.images[0]} alt="" fill sizes="68px" className="object-cover" />
+              )}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-medium leading-snug">{p.name_bg}</p>
+                {p.is_new && (
+                  <span className="shrink-0 bg-noir px-1.5 py-0.5 text-[0.55rem] uppercase tracking-widest2 text-paper">
+                    Ново
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-sm tabular-nums">{formatEUR(p.price_bgn)}</p>
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.72rem] text-ash">
+                <span>{categoryLabel(p.category)}</span>
+                <span className={cn("tabular-nums", p.stock === 0 && "text-[#8a2b2b]")}>
+                  {p.stock === 0 ? "Изчерпан" : `${p.stock} бр.`}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 flex-col items-center justify-center">
+              <Link
+                href={`/admin/prodakti/${p.slug}/edit`}
+                aria-label={`Редактирай ${p.name_bg}`}
+                className="inline-flex h-11 w-11 items-center justify-center text-ash transition-colors hover:bg-mist hover:text-ink"
+              >
+                <Pencil className="h-[1.1rem] w-[1.1rem]" strokeWidth={1.6} />
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null);
+                  setPending(p);
+                }}
+                aria-label={`Изтрий ${p.name_bg}`}
+                className="inline-flex h-11 w-11 items-center justify-center text-ash transition-colors hover:bg-mist hover:text-[#8a2b2b]"
+              >
+                <Trash2 className="h-[1.1rem] w-[1.1rem]" strokeWidth={1.6} />
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {/* Desktop — table */}
+      <div className="hidden overflow-x-auto border border-hairline bg-paper lg:block">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
             <tr className="border-b border-hairline text-[0.68rem] uppercase tracking-widest2 text-ash">
