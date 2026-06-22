@@ -171,43 +171,47 @@ export function Navbar() {
             </form>
           </div>
         )}
-
-        {/* mobile menu overlay */}
-        <div
-          className={cn(
-            "fixed inset-0 z-50 bg-paper transition-opacity duration-300 lg:hidden",
-            menuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
-          )}
-        >
-          <div className="gutter flex h-16 items-center justify-between border-b border-hairline">
-            <span className="eyebrow">Меню</span>
-            <button type="button" aria-label="Затвори" onClick={() => setMenuOpen(false)} className="-mr-1 p-1.5">
-              <X className="h-5 w-5" strokeWidth={1.4} />
-            </button>
-          </div>
-          <ul className="gutter flex flex-col py-4">
-            {NAV_LINKS.map((l) => (
-              <li key={l.href} className="border-b border-hairline">
-                <Link
-                  href={l.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="block py-5 font-display text-3xl"
-                >
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <div className="gutter mt-2 flex flex-col gap-4">
-            <Link href={accountHref} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-sm">
-              <User className="h-4 w-4" strokeWidth={1.4} /> {user ? "Моят профил" : "Вход / Регистрация"}
-            </Link>
-            <button type="button" onClick={openSearch} className="flex items-center gap-3 text-sm">
-              <Search className="h-4 w-4" strokeWidth={1.4} /> Търсене
-            </button>
-          </div>
-        </div>
       </header>
+
+      {/* mobile menu overlay — rendered as a sibling of <header> (not inside it)
+          so the header's backdrop-blur doesn't become the containing block for
+          this fixed element. Inside the header, `inset-0` resolved against the
+          64px navbar instead of the viewport, leaving the drawer see-through
+          below the navbar. As a sibling it fills the whole screen. */}
+      <div
+        className={cn(
+          "fixed inset-0 z-50 flex flex-col overflow-y-auto bg-white transition-opacity duration-300 lg:hidden",
+          menuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
+        )}
+      >
+        <div className="gutter flex h-16 shrink-0 items-center justify-between border-b border-hairline">
+          <span className="eyebrow">Меню</span>
+          <button type="button" aria-label="Затвори" onClick={() => setMenuOpen(false)} className="-mr-1 p-1.5">
+            <X className="h-5 w-5" strokeWidth={1.4} />
+          </button>
+        </div>
+        <ul className="gutter flex flex-col py-4">
+          {NAV_LINKS.map((l) => (
+            <li key={l.href} className="border-b border-hairline">
+              <Link
+                href={l.href}
+                onClick={() => setMenuOpen(false)}
+                className="block py-5 font-display text-3xl"
+              >
+                {l.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <div className="gutter mt-2 flex flex-col gap-4">
+          <Link href={accountHref} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-sm">
+            <User className="h-4 w-4" strokeWidth={1.4} /> {user ? "Моят профил" : "Вход / Регистрация"}
+          </Link>
+          <button type="button" onClick={openSearch} className="flex items-center gap-3 text-sm">
+            <Search className="h-4 w-4" strokeWidth={1.4} /> Търсене
+          </button>
+        </div>
+      </div>
 
       {/* search backdrop — click to dismiss */}
       {searchOpen && (
