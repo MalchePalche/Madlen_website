@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Prata } from "next/font/google";
 import "./globals.css";
 import { BRAND } from "@/lib/config";
 import { SiteFrame } from "@/components/layout/SiteFrame";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -27,12 +28,31 @@ export const metadata: Metadata = {
   description:
     "Минималистична българска модна марка. Мъжко и дамско облекло, наложен платеж, доставка в цялата страна.",
   metadataBase: new URL("https://madlen.bg"),
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: BRAND.name,
+  },
   openGraph: {
     title: BRAND.name,
     description: BRAND.tagline,
     locale: "bg_BG",
     type: "website",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -44,6 +64,7 @@ export default function RootLayout({
         <AuthProvider>
           <SiteFrame>{children}</SiteFrame>
         </AuthProvider>
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
