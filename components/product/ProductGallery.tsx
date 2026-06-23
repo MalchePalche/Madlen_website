@@ -34,7 +34,16 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
     slideRefs.current[i]?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
 
   return (
-    <div className="grid gap-3 lg:grid-cols-[84px_1fr] lg:gap-4">
+    <div
+      className={cn(
+        "grid gap-3 lg:gap-4",
+        // Only reserve the 84px thumbnail column when there are thumbnails to
+        // show. With a single image the strip is hidden, so a two-column grid
+        // would squeeze the main image into the 84px slot and leave the rest
+        // of the gallery empty — fall back to a single full-width column.
+        multiple ? "lg:grid-cols-[84px_1fr]" : "lg:grid-cols-1",
+      )}
+    >
       {/* thumbnails */}
       {multiple && (
         <div className="order-2 flex gap-3 overflow-x-auto pb-1 lg:order-1 lg:flex-col lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden">
