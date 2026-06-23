@@ -99,13 +99,24 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   }
   try {
     const supabase = createClient();
+    // maybeSingle(): a non-matching slug returns { data: null, error: null }
+    // instead of an error, so a genuinely-missing product is no longer
+    // conflated with a real fetch failure. .single() reports "no rows" AS an
+    // error (PGRST116), which is what made the page 404 on any query hiccup.
     const { data, error } = await supabase
       .from("products")
       .select("*")
       .eq("slug", slug)
-      .single();
-    if (error || !data) return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;
-    return data as Product;
+      .maybeSingle();
+
+    // A real fetch failure (network/RLS/bad env) must not masquerade as a 404 —
+    // degrade to the local catalogue so a transient error doesn't 404 a product
+    // that actually exists in Supabase.
+    if (error) return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;
+
+    // No error: `data` is the row, or null when the slug truly doesn't exist.
+    // Returning null lets the page call notFound() only on a genuine miss.
+    return (data as Product | null) ?? null;
   } catch {
     return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;
   }

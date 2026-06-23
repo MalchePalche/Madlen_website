@@ -7,6 +7,12 @@ import { ProductGallery } from "@/components/product/ProductGallery";
 import { BuyPanel } from "@/components/product/BuyPanel";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
 
+// No generateStaticParams here: every slug is resolved on demand, so products
+// added to Supabase after the build (e.g. the Instagram import) render fine.
+// This is already the App Router default — declared explicitly so that adding
+// generateStaticParams later can't silently start 404-ing unknown slugs.
+export const dynamicParams = true;
+
 function genderRoute(gender: string) {
   if (gender === "male") return { href: "/muzhko", label: "Мъжко" };
   if (gender === "female") return { href: "/damsko", label: "Дамско" };
