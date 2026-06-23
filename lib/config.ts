@@ -22,9 +22,9 @@ export const BRAND = {
 
 /** Primary navigation tabs (left side of the navbar). */
 export const NAV_LINKS = [
-  { label: "Мъжко", href: "/muzhko" },
-  { label: "Дамско", href: "/damsko" },
   { label: "Ново", href: "/novo" },
+  { label: "Дамско", href: "/damsko" },
+  { label: "Мъжко", href: "/muzhko" },
 ] as const;
 
 /** Product categories used for the homepage pills and collection filters. */
