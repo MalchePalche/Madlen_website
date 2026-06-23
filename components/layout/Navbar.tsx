@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Search, User, ShoppingBag, Menu, X } from "lucide-react";
 import { BRAND, NAV_LINKS } from "@/lib/config";
@@ -101,9 +102,16 @@ export function Navbar() {
           <Link
             href="/"
             aria-label={`${BRAND.name} — начало`}
-            className="justify-self-center font-display text-2xl leading-none tracking-[0.3em] sm:text-[1.7rem]"
+            className="justify-self-center"
           >
-            {BRAND.name}
+            <Image
+              src="/logo.png"
+              alt={BRAND.name}
+              width={64}
+              height={64}
+              priority
+              className="h-11 w-auto brightness-0 sm:h-12"
+            />
           </Link>
 
           {/* right — icons */}
