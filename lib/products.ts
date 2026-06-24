@@ -122,31 +122,75 @@ export async function getRelatedProducts(product: Product, limit = 4): Promise<P
   return [...sameCat, ...others].slice(0, limit);
 }
 
-/** Full-text-ish search over product names (Bulgarian + English). */
+/** Free-text fields searched on every query (besides the synonym→category map). */
+const SEARCH_FIELDS = ["name_bg", "name_en", "description_bg", "category"] as const;
+
+/**
+ * Maps common Bulgarian search terms to the category slug they should also
+ * match, so "рокля"/"рокли" surface `rokli` products even when no name field
+ * literally contains the word.
+ */
+const CATEGORY_SYNONYMS: Record<string, string> = {
+  рокля: "rokli",
+  рокли: "rokli",
+  сет: "setove",
+  сетове: "setove",
+  блуза: "topove",
+  топ: "topove",
+  панталон: "pantaloni",
+  панталони: "pantaloni",
+};
+
+/** Split a query into sanitised words, dropping chars that break PostgREST. */
+function searchTerms(q: string): string[] {
+  return q
+    .split(/\s+/)
+    .map((w) => w.replace(/[%,()]/g, "").trim())
+    .filter(Boolean);
+}
+
+/**
+ * Full-text-ish search over names, description and category (Bulgarian +
+ * English). Every word is matched independently and OR-combined, so any product
+ * hitting any term on any field surfaces. Synonyms also map terms to a category.
+ */
 export async function searchProducts(query: string, limit = 24): Promise<Product[]> {
   const q = query.trim();
-  if (!q) return [];
+  // Require at least two characters before searching to avoid noisy 1-char hits.
+  if (q.length < 2) return [];
 
-  const matchMock = () => {
-    const lower = q.toLowerCase();
-    return MOCK_PRODUCTS.filter(
-      (p) =>
-        p.name_bg.toLowerCase().includes(lower) ||
-        p.name_en.toLowerCase().includes(lower) ||
-        p.category.toLowerCase().includes(lower),
+  const terms = searchTerms(q);
+
+  const matchMock = () =>
+    MOCK_PRODUCTS.filter((p) =>
+      terms.some((w) => {
+        const lw = w.toLowerCase();
+        return (
+          p.name_bg.toLowerCase().includes(lw) ||
+          p.name_en.toLowerCase().includes(lw) ||
+          (p.description_bg ?? "").toLowerCase().includes(lw) ||
+          p.category.toLowerCase().includes(lw) ||
+          CATEGORY_SYNONYMS[lw] === p.category
+        );
+      }),
     ).slice(0, limit);
-  };
 
   if (!isSupabaseConfigured()) return matchMock();
 
   try {
     const supabase = createClient();
-    // strip characters that would break the PostgREST or-filter grammar
-    const safe = q.replace(/[%,()]/g, " ").trim();
+    // Build one OR filter: every word × every field, plus any synonym→category.
+    const clauses = terms.flatMap((w) => {
+      const c = SEARCH_FIELDS.map((f) => `${f}.ilike.%${w}%`);
+      const slug = CATEGORY_SYNONYMS[w.toLowerCase()];
+      if (slug) c.push(`category.ilike.%${slug}%`);
+      return c;
+    });
+
     const { data, error } = await supabase
       .from("products")
       .select("*")
-      .or(`name_bg.ilike.%${safe}%,name_en.ilike.%${safe}%`)
+      .or(clauses.join(","))
       .order("created_at", { ascending: false })
       .limit(limit);
     // Only degrade to mock on a real failure — an empty result is a valid
