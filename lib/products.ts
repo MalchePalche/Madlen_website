@@ -49,6 +49,71 @@ export async function getNewArrivals(limit = 8): Promise<Product[]> {
   return getProducts({ isNew: true, limit });
 }
 
+/** A resolved Lookbook mosaic tile — label/link are fixed, image is dynamic. */
+export interface LookbookTile {
+  label: string;
+  href: string;
+  className: string;
+  image: string;
+}
+
+/**
+ * Lookbook mosaic config: each tile keeps a fixed label/link and pulls its
+ * image from one real product (`query`). `placeholder` is the Unsplash fallback
+ * shown when the query finds no product or that product has no image.
+ */
+const LOOKBOOK_TILES: (Omit<LookbookTile, "image"> & {
+  query: ProductQuery;
+  placeholder: string;
+})[] = [
+  {
+    label: "Дамско лято",
+    href: "/damsko",
+    className: "md:col-span-2 md:row-span-2 aspect-[3/4] md:aspect-auto",
+    query: { gender: "female", category: "rokli", limit: 1 },
+    placeholder:
+      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1100&q=80",
+  },
+  {
+    label: "Мъжко",
+    href: "/muzhko",
+    className: "aspect-[4/5]",
+    query: { gender: "male", category: "topove", limit: 1 },
+    placeholder:
+      "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    label: "Връхни дрехи",
+    href: "/novo",
+    className: "aspect-[4/5]",
+    query: { category: "vrahni", limit: 1 },
+    placeholder:
+      "https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    label: "Нови сетове",
+    href: "/novo",
+    className: "md:col-span-2 aspect-[16/7]",
+    query: { isNew: true, category: "setove", limit: 1 },
+    placeholder:
+      "https://images.unsplash.com/photo-1485231183945-fffde7cc051e?auto=format&fit=crop&w=1100&q=80",
+  },
+];
+
+/**
+ * Resolve the four Lookbook tiles, each backed by a real product image and
+ * degrading to its placeholder when no product/image is available. Queries run
+ * in parallel so the mosaic costs a single round-trip's latency.
+ */
+export async function getLookbookTiles(): Promise<LookbookTile[]> {
+  return Promise.all(
+    LOOKBOOK_TILES.map(async ({ query, placeholder, ...tile }) => {
+      const [product] = await getProducts(query);
+      return { ...tile, image: product?.images?.[0] ?? placeholder };
+    }),
+  );
+}
+
 /** Products from the same gender, prioritising the same category, excluding the current product. */
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
   const pool = await getProducts({ gender: product.gender });
