@@ -20,7 +20,7 @@ export function Footer() {
                 alt={BRAND.name}
                 width={80}
                 height={80}
-                className="h-16 w-auto invert"
+                className="h-16 w-auto"
               />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-ash">
