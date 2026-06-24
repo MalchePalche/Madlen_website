@@ -48,7 +48,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* link columns + stores */}
+          {/* link columns + contacts */}
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">
             {FOOTER_LINKS.map((col) => (
               <div key={col.title}>
@@ -69,20 +69,10 @@ export function Footer() {
             ))}
 
             <div>
-              <h3 className="eyebrow mb-4">Магазини</h3>
+              <h3 className="eyebrow mb-4">Контакти</h3>
               <ul className="space-y-4">
-                {BRAND.stores.map((s) => (
-                  <li key={s.city} className="text-sm text-ash">
-                    <span className="block font-medium text-ink">{s.city}</span>
-                    {s.address}
-                    <span className="mt-0.5 block text-[0.78rem]">{s.hours}</span>
-                  </li>
-                ))}
                 <li className="text-sm">
-                  <a href={`mailto:${BRAND.email}`} className="text-ash hover:text-ink">
-                    {BRAND.email}
-                  </a>
-                  <br />
+                  {/* TODO: replace with real business email */}
                   <a href={`tel:${BRAND.phone.replace(/\s/g, "")}`} className="text-ash hover:text-ink">
                     {BRAND.phone}
                   </a>
