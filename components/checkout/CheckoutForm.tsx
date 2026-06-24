@@ -6,8 +6,10 @@ import Link from "next/link";
 import { ShoppingBag, Banknote, Loader2, AlertCircle } from "lucide-react";
 import { useCart, selectSubtotal } from "@/store/cart";
 import { OrderSummary } from "./OrderSummary";
+import { AccountStep } from "./AccountStep";
 import { createOrder, deliveryCost, newOrderId, saveLastOrder } from "@/lib/orders";
 import { createClient, isSupabaseConfiguredClient } from "@/lib/supabase/client";
+import { useUser } from "@/components/auth/AuthProvider";
 import { cleanPhone, PHONE_RE, EMAIL_RE, POSTCODE_RE } from "@/lib/validation";
 import { TextField } from "@/components/ui/TextField";
 import type { DeliveryAddress } from "@/lib/types";
@@ -65,12 +67,16 @@ export function CheckoutForm() {
   const subtotal = useCart(selectSubtotal);
   const clear = useCart((s) => s.clear);
   const hydrated = useCart((s) => s._hasHydrated);
+  const { user, loading: authLoading } = useUser();
 
   const [values, setValues] = useState<Values>(EMPTY);
   const [touched, setTouched] = useState<Partial<Record<Field, boolean>>>({});
   const [attempted, setAttempted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Guests opt out of the account step; signed-in shoppers skip it implicitly.
+  const [guest, setGuest] = useState(false);
+  const showForm = Boolean(user) || guest;
 
   const errors = validate(values);
   const errShown = (f: Field) => (touched[f] || attempted ? errors[f] : undefined);
@@ -78,31 +84,36 @@ export function CheckoutForm() {
   const delivery = deliveryCost(subtotal);
   const total = subtotal + delivery;
 
-  // Pre-fill from the saved profile when the shopper is logged in.
+  // Pre-fill from the saved profile once a user is known — whether they were
+  // already logged in or just signed in via the inline account step.
   useEffect(() => {
-    if (!isSupabaseConfiguredClient()) return;
+    if (!user || !isSupabaseConfiguredClient()) return;
     const supabase = createClient();
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) return;
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("default_address, full_name, phone")
-        .eq("id", data.user.id)
-        .single();
-      const a = (profile?.default_address ?? null) as DeliveryAddress | null;
-      const [fn = "", ...ln] = (profile?.full_name ?? "").split(" ");
-      setValues((v) => ({
-        ...v,
-        first_name: v.first_name || a?.first_name || fn,
-        last_name: v.last_name || a?.last_name || ln.join(" "),
-        phone: v.phone || a?.phone || profile?.phone || "",
-        email: v.email || data.user!.email || "",
-        address: v.address || a?.address || "",
-        city: v.city || a?.city || "",
-        postcode: v.postcode || a?.postcode || "",
-      }));
-    });
-  }, []);
+    let active = true;
+    supabase
+      .from("profiles")
+      .select("default_address, full_name, phone")
+      .eq("id", user.id)
+      .single()
+      .then(({ data: profile }) => {
+        if (!active) return;
+        const a = (profile?.default_address ?? null) as DeliveryAddress | null;
+        const [fn = "", ...ln] = (profile?.full_name ?? "").split(" ");
+        setValues((v) => ({
+          ...v,
+          first_name: v.first_name || a?.first_name || fn,
+          last_name: v.last_name || a?.last_name || ln.join(" "),
+          phone: v.phone || a?.phone || profile?.phone || "",
+          email: v.email || user.email || "",
+          address: v.address || a?.address || "",
+          city: v.city || a?.city || "",
+          postcode: v.postcode || a?.postcode || "",
+        }));
+      });
+    return () => {
+      active = false;
+    };
+  }, [user]);
 
   const set = (f: Field) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setValues((v) => ({ ...v, [f]: e.target.value }));
@@ -168,8 +179,8 @@ export function CheckoutForm() {
     router.push(`/porachka-uspeshna/${id}`);
   };
 
-  // ---- loading / empty guards -------------------------------------------
-  if (!hydrated) {
+  // ---- loading / empty / account guards ---------------------------------
+  if (!hydrated || authLoading) {
     return <div className="py-24 text-center text-sm text-ash">Зареждане…</div>;
   }
 
@@ -186,6 +197,12 @@ export function CheckoutForm() {
         </Link>
       </div>
     );
+  }
+
+  // Guests/visitors choose how to proceed before seeing the form; signing in
+  // here means the order is saved against the real user_id (not null).
+  if (!showForm) {
+    return <AccountStep onGuest={() => setGuest(true)} />;
   }
 
   return (
