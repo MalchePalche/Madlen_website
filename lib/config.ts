@@ -6,7 +6,7 @@ export const BRAND = {
   name: "Noem Studio",
   tagline: "Българска мода за мъже и жени",
   season: "ЛЯТО 2026",
-  email: "info@madlen.bg",
+  email: "noem.studio.bg@gmail.com",
   phone: "+359 88 123 4567",
   freeShippingThreshold: 100,
   social: {

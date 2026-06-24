@@ -72,7 +72,11 @@ export function Footer() {
               <h3 className="eyebrow mb-4">Контакти</h3>
               <ul className="space-y-4">
                 <li className="text-sm">
-                  {/* TODO: replace with real business email */}
+                  <a href={`mailto:${BRAND.email}`} className="text-ash hover:text-ink">
+                    {BRAND.email}
+                  </a>
+                </li>
+                <li className="text-sm">
                   <a href={`tel:${BRAND.phone.replace(/\s/g, "")}`} className="text-ash hover:text-ink">
                     {BRAND.phone}
                   </a>
