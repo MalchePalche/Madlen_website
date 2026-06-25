@@ -25,8 +25,11 @@ export function NewArrivals({ products }: { products: Product[] }) {
         <ProductGrid products={products} priorityCount={4} />
       </Reveal>
 
-      <div className="mt-10 flex justify-center">
-        <Link href="/novo" className="btn-outline">
+      <div className="flex justify-center mt-10">
+        <Link
+          href="/novo"
+          className="border border-black text-black px-8 py-3 text-sm tracking-widest hover:bg-black hover:text-white transition-colors"
+        >
           Виж всички
         </Link>
       </div>

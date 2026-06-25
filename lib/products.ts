@@ -45,8 +45,20 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
   }
 }
 
+/**
+ * New-arrivals rail: prefer products flagged `is_new`, then top up with the most
+ * recent remaining products (created_at desc, already the default order) so the
+ * grid always fills to `limit` even when few items carry the flag.
+ */
 export async function getNewArrivals(limit = 8): Promise<Product[]> {
-  return getProducts({ isNew: true, limit });
+  const flagged = await getProducts({ isNew: true });
+  if (flagged.length >= limit) return flagged.slice(0, limit);
+
+  const recent = await getProducts();
+  const seen = new Set(flagged.map((p) => p.id));
+  const fill = recent.filter((p) => !seen.has(p.id));
+
+  return [...flagged, ...fill].slice(0, limit);
 }
 
 /** A resolved Lookbook mosaic tile — label/link are fixed, image is dynamic. */
