@@ -78,7 +78,7 @@ const LOOKBOOK_TILES: (Omit<LookbookTile, "image"> & {
     label: "Мъжко",
     href: "/muzhko",
     className: "aspect-[4/5]",
-    query: { gender: "male", category: "topove", limit: 1 },
+    query: { category: "rokli", limit: 1 },
     placeholder:
       "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=900&q=80",
   },
@@ -86,7 +86,7 @@ const LOOKBOOK_TILES: (Omit<LookbookTile, "image"> & {
     label: "Връхни дрехи",
     href: "/novo",
     className: "aspect-[4/5]",
-    query: { category: "vrahni", limit: 1 },
+    query: { category: "topove", limit: 1 },
     placeholder:
       "https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?auto=format&fit=crop&w=900&q=80",
   },
