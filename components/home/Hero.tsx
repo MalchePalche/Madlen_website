@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { BRAND } from "@/lib/config";
@@ -17,17 +16,16 @@ export function Hero() {
         playsInline
       />
 
-      {/* desktop — static editorial image */}
-      <div className="absolute inset-0 hidden md:block">
-        <Image
-          src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1920&q=80"
-          alt="Лятна колекция Noem Studio"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[50%_30%]"
-        />
-      </div>
+      {/* desktop — autoplaying, muted, looping video background */}
+      <video
+        className="hidden md:block w-full h-full object-cover absolute inset-0"
+        src="/hero_desktop_clean.mp4"
+        poster="/hero-desktop-poster.jpg"
+        autoPlay
+        muted
+        loop
+        playsInline
+      />
       {/* readability scrim — bottom-weighted, never a flat overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-ink/55 via-ink/10 to-ink/15" />
 
