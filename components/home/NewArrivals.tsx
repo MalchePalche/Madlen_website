@@ -24,6 +24,12 @@ export function NewArrivals({ products }: { products: Product[] }) {
       <Reveal delay={0.05}>
         <ProductGrid products={products} priorityCount={4} />
       </Reveal>
+
+      <div className="mt-10 flex justify-center">
+        <Link href="/novo" className="btn-outline">
+          Виж всички
+        </Link>
+      </div>
     </section>
   );
 }
