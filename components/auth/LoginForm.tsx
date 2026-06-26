@@ -61,11 +61,14 @@ export function LoginForm() {
     }
     setBusy(true);
     const supabase = createClient();
+    // Redirect straight to the allow-listed /reset-password URL (no extra query
+    // params, which Supabase may reject) — that page exchanges the ?code itself.
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${siteOrigin()}/auth/callback?next=/reset-password`,
+      redirectTo: `${siteOrigin()}/reset-password`,
     });
     setBusy(false);
     if (error) {
+      console.error("resetPasswordForEmail failed:", error);
       setError(authErrorBg(error.message));
       return;
     }
