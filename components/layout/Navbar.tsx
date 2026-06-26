@@ -4,8 +4,21 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, User, ShoppingBag, Menu, X } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
 import { BRAND, NAV_LINKS } from "@/lib/config";
+
+/** Category submenu shown under the "Дамско" nav item (desktop dropdown + mobile accordion). */
+const DAMSKO_CATEGORIES = [
+  { label: "Всички продукти", href: "/damsko" },
+  { label: "Рокли", href: "/damsko?cat=rokli" },
+  { label: "Сетове", href: "/damsko?cat=setove" },
+  { label: "Тениски и топове", href: "/damsko?cat=topove" },
+  { label: "Ризи", href: "/damsko?cat=topove" },
+  { label: "Панталони", href: "/damsko?cat=pantaloni" },
+  { label: "Поли", href: "/damsko?cat=poli" },
+  { label: "Якета", href: "/damsko?cat=yaketa" },
+  { label: "Костюми", href: "/damsko?cat=kostumi" },
+] as const;
 import { useCart, selectCount } from "@/store/cart";
 import { useUser } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
@@ -14,6 +27,7 @@ export function Navbar() {
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [damskoOpen, setDamskoOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [term, setTerm] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -84,17 +98,48 @@ export function Navbar() {
               <Menu className="h-5 w-5" strokeWidth={1.4} />
             </button>
             <ul className="hidden items-center gap-7 lg:flex">
-              {NAV_LINKS.map((l) => (
-                <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    className="group relative text-[0.78rem] uppercase tracking-widest2 font-medium"
-                  >
-                    {l.label}
-                    <span className="absolute -bottom-1 left-0 h-px w-0 bg-ink transition-all duration-300 ease-editorial group-hover:w-full" />
-                  </Link>
-                </li>
-              ))}
+              {NAV_LINKS.map((l) =>
+                l.href === "/damsko" ? (
+                  <li key={l.href} className="group/sub relative">
+                    <Link
+                      href={l.href}
+                      className="group relative flex items-center gap-1 text-[0.78rem] uppercase tracking-widest2 font-medium"
+                    >
+                      {l.label}
+                      <ChevronDown
+                        className="h-3 w-3 transition-transform duration-300 group-hover/sub:rotate-180"
+                        strokeWidth={1.6}
+                      />
+                      <span className="absolute -bottom-1 left-0 h-px w-0 bg-ink transition-all duration-300 ease-editorial group-hover:w-full" />
+                    </Link>
+                    {/* dropdown — pt-3 bridges the gap so hover isn't lost between trigger and menu */}
+                    <div className="invisible absolute left-0 top-full z-50 pt-3 opacity-0 transition-opacity duration-200 group-hover/sub:visible group-hover/sub:opacity-100">
+                      <ul className="min-w-[220px] border border-hairline bg-white py-2 shadow-lg">
+                        {DAMSKO_CATEGORIES.map((c) => (
+                          <li key={c.label}>
+                            <Link
+                              href={c.href}
+                              className="block px-5 py-2.5 text-[0.72rem] uppercase tracking-widest2 font-medium text-ink transition-colors hover:bg-paper"
+                            >
+                              {c.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </li>
+                ) : (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      className="group relative text-[0.78rem] uppercase tracking-widest2 font-medium"
+                    >
+                      {l.label}
+                      <span className="absolute -bottom-1 left-0 h-px w-0 bg-ink transition-all duration-300 ease-editorial group-hover:w-full" />
+                    </Link>
+                  </li>
+                ),
+              )}
             </ul>
           </div>
 
@@ -199,17 +244,52 @@ export function Navbar() {
           </button>
         </div>
         <ul className="gutter flex flex-col py-4">
-          {NAV_LINKS.map((l) => (
-            <li key={l.href} className="border-b border-hairline">
-              <Link
-                href={l.href}
-                onClick={() => setMenuOpen(false)}
-                className="block py-5 font-display text-3xl"
-              >
-                {l.label}
-              </Link>
-            </li>
-          ))}
+          {NAV_LINKS.map((l) =>
+            l.href === "/damsko" ? (
+              <li key={l.href} className="border-b border-hairline">
+                <button
+                  type="button"
+                  onClick={() => setDamskoOpen((v) => !v)}
+                  aria-expanded={damskoOpen}
+                  className="flex w-full items-center justify-between py-5 font-display text-3xl"
+                >
+                  {l.label}
+                  <ChevronDown
+                    className={cn("h-6 w-6 transition-transform duration-300", damskoOpen && "rotate-180")}
+                    strokeWidth={1.4}
+                  />
+                </button>
+                {damskoOpen && (
+                  <ul className="pb-5 pl-1">
+                    {DAMSKO_CATEGORIES.map((c) => (
+                      <li key={c.label}>
+                        <Link
+                          href={c.href}
+                          onClick={() => {
+                            setMenuOpen(false);
+                            setDamskoOpen(false);
+                          }}
+                          className="block py-2.5 text-sm uppercase tracking-widest2 font-medium text-ash"
+                        >
+                          {c.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ) : (
+              <li key={l.href} className="border-b border-hairline">
+                <Link
+                  href={l.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="block py-5 font-display text-3xl"
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ),
+          )}
         </ul>
         <div className="gutter mt-2 flex flex-col gap-4">
           <Link href={accountHref} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-sm">
