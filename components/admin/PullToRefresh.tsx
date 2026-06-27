@@ -116,7 +116,7 @@ export function PullToRefresh({ children }: { children: React.ReactNode }) {
       {/* Pull indicator — sits in the gap just under the mobile top bar. */}
       <div
         aria-hidden
-        className="pointer-events-none fixed left-1/2 top-14 z-20 lg:hidden"
+        className="pointer-events-none fixed left-1/2 top-[calc(3.5rem+env(safe-area-inset-top))] z-20 lg:hidden"
         style={{
           transform: `translate(-50%, ${gap - 18}px)`,
           opacity: gap > 6 || isRefreshing ? 1 : 0,

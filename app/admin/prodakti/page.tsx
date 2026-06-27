@@ -18,7 +18,7 @@ export default async function AdminProductsPage() {
   return (
     <PullToRefresh>
       <div className="lg:p-8">
-        <header className="sticky top-14 z-30 flex flex-wrap items-end justify-between gap-3 border-b border-hairline bg-paper px-5 py-4 lg:static lg:px-0 lg:py-0 lg:pb-6">
+        <header className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-30 flex flex-wrap items-end justify-between gap-3 border-b border-hairline bg-paper px-5 py-4 lg:static lg:px-0 lg:py-0 lg:pb-6">
           <div>
             <p className="eyebrow">{products.length} продукта</p>
             <h1 className="mt-1 font-display text-2xl lg:mt-2 lg:text-4xl">Продукти</h1>

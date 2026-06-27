@@ -21,7 +21,7 @@ export default async function AdminOrdersPage() {
   return (
     <PullToRefresh>
       <div className="lg:p-8">
-        <header className="sticky top-14 z-30 flex items-end justify-between gap-3 border-b border-hairline bg-paper px-5 py-4 lg:static lg:px-0 lg:py-0 lg:pb-6">
+        <header className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-30 flex items-end justify-between gap-3 border-b border-hairline bg-paper px-5 py-4 lg:static lg:px-0 lg:py-0 lg:pb-6">
           <div>
             <p className="eyebrow">
               {orders.length} {orders.length === 1 ? "поръчка" : "поръчки"}

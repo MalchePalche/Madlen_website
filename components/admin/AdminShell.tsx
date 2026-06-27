@@ -96,8 +96,11 @@ export function AdminShell({
         </div>
       </aside>
 
-      {/* Top bar — mobile (fixed 56px height so list headers can pin to top-14) */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-hairline bg-paper px-5 lg:hidden">
+      {/* Top bar — mobile. 56px content row + the iPhone safe-area inset on top,
+          so the logo/logout clear the notch in standalone PWA mode. The paper
+          background fills the inset to cover the status-bar area. List headers
+          pin just below it at top-[calc(3.5rem+env(safe-area-inset-top))]. */}
+      <header className="sticky top-0 z-40 flex h-[calc(3.5rem+env(safe-area-inset-top))] items-center justify-between border-b border-hairline bg-paper px-5 pt-[env(safe-area-inset-top)] lg:hidden">
         <Link href="/admin" className="font-display text-xl">
           NOEM STUDIO <span className="eyebrow align-middle">Админ</span>
         </Link>
