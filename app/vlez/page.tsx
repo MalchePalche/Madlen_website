@@ -7,12 +7,24 @@ import { LoginForm } from "@/components/auth/LoginForm";
 
 export const metadata: Metadata = { title: "Вход", robots: { index: false } };
 
-export default async function LoginPage() {
+/** Only allow same-origin, absolute internal paths as a post-login target. */
+function safeRedirect(value: string | string[] | undefined): string {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return raw && /^\/(?![/\\])/.test(raw) ? raw : "/akaunt";
+}
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: { redirect?: string | string[] };
+}) {
   if (isSupabaseConfigured()) {
     const {
       data: { user },
     } = await createClient().auth.getUser();
-    if (user) redirect("/akaunt");
+    // Already signed in → skip the form and go straight to the requested target
+    // (e.g. an admin reopening the PWA lands on /admin, not /akaunt).
+    if (user) redirect(safeRedirect(searchParams.redirect));
   }
   return (
     <AuthShell>

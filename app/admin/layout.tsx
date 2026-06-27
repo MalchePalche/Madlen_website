@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { AdminSessionGuard } from "@/components/admin/AdminSessionGuard";
 
 export const metadata: Metadata = { title: "Админ", robots: { index: false, follow: false } };
 
@@ -27,7 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/");
+  if (!user) redirect("/vlez?redirect=/admin");
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -36,5 +37,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .maybeSingle();
   if (!profile?.is_admin) redirect("/");
 
-  return <AdminShell email={user.email ?? ""}>{children}</AdminShell>;
+  return (
+    <AdminShell email={user.email ?? ""}>
+      <AdminSessionGuard />
+      {children}
+    </AdminShell>
+  );
 }

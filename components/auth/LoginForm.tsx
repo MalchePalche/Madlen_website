@@ -13,7 +13,10 @@ import { cn } from "@/lib/utils";
 export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const redirectTo = params.get("redirect") || "/akaunt";
+  // Honour the post-login target from the URL (?redirect=/admin), but only when
+  // it's a same-origin internal path — guards against an open redirect.
+  const rawRedirect = params.get("redirect");
+  const redirectTo = rawRedirect && /^\/(?![/\\])/.test(rawRedirect) ? rawRedirect : "/akaunt";
   const configured = isSupabaseConfiguredClient();
 
   const [email, setEmail] = useState("");

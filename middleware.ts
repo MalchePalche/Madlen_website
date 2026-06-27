@@ -38,7 +38,16 @@ export async function middleware(request: NextRequest) {
   // ---- Admin area: require a signed-in user whose profile.is_admin is true.
   // Non-admins (and guests) are bounced to the homepage silently.
   if (path.startsWith("/admin")) {
-    if (!user) return NextResponse.redirect(new URL("/", request.url));
+    // Not signed in → send to the login page and remember where we were headed,
+    // so the PWA returns to /admin (or the deep-linked admin page) after login
+    // instead of dumping the user on the public storefront.
+    if (!user) {
+      const login = request.nextUrl.clone();
+      login.pathname = "/vlez";
+      login.search = "";
+      login.searchParams.set("redirect", path);
+      return NextResponse.redirect(login);
+    }
 
     const { data: profile } = await supabase
       .from("profiles")
