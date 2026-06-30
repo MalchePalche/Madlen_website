@@ -155,19 +155,8 @@ export function CheckoutForm() {
       return;
     }
 
-    // Fire the confirmation email — never block the order on email delivery.
-    if (delivery_address.email) {
-      try {
-        await fetch("/api/confirm-order", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id, items, subtotal, delivery, total_bgn: total, delivery_address }),
-          keepalive: true,
-        });
-      } catch {
-        /* email is best-effort; the order is already placed */
-      }
-    }
+    // The confirmation email is sent server-side by /api/create-order after the
+    // order is inserted, so there's no separate client call here.
 
     saveLastOrder({
       id,
