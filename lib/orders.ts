@@ -1,4 +1,4 @@
-import { createClient, isSupabaseConfiguredClient } from "./supabase/client";
+import { isSupabaseConfiguredClient } from "./supabase/client";
 import { BRAND } from "./config";
 import type { CartItem, DeliveryAddress, OrderStatus } from "./types";
 
@@ -50,31 +50,32 @@ export interface NewOrder {
 }
 
 /**
- * Persist an order to Supabase. The id is generated client-side so we don't
- * rely on a RETURNING select (which RLS blocks for anonymous guests).
- * Links the order to the signed-in user (so it shows in order history);
- * guests fall back to null. In mock mode (no Supabase env) this is a no-op.
+ * Persist an order via the server route (app/api/create-order), which inserts
+ * with the service-role key behind IP rate limiting + validation — so the write
+ * can't be spammed the way a direct client-side insert could. The id is still
+ * generated client-side so we don't rely on a RETURNING select. The signed-in
+ * user is resolved server-side from the session cookie (guests stay null). In
+ * mock mode (no Supabase env) this is a no-op.
  */
 export async function createOrder(order: NewOrder): Promise<void> {
   if (!isSupabaseConfiguredClient()) return;
-  const supabase = createClient();
 
-  // Attach the current user so the order appears in their /akaunt history.
-  // Guests stay null — both cases satisfy the orders INSERT policy.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { error } = await supabase.from("orders").insert({
-    id: order.id,
-    user_id: user?.id ?? null,
-    items: order.items,
-    total_bgn: order.total_bgn,
-    delivery_address: order.delivery_address,
-    payment_method: "cod",
-    status: "pending",
+  const res = await fetch("/api/create-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(order),
   });
-  if (error) throw error;
+
+  if (!res.ok) {
+    let message = "order_failed";
+    try {
+      const data = (await res.json()) as { error?: string };
+      if (data?.error) message = data.error;
+    } catch {
+      /* non-JSON error body — keep the generic message */
+    }
+    throw new Error(message);
+  }
 }
 
 // ---- confirmation hand-off (survives the redirect within the tab) ---------
