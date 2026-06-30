@@ -10,7 +10,7 @@ import { AccountStep } from "./AccountStep";
 import { createOrder, deliveryCost, newOrderId, saveLastOrder } from "@/lib/orders";
 import { createClient, isSupabaseConfiguredClient } from "@/lib/supabase/client";
 import { useUser } from "@/components/auth/AuthProvider";
-import { cleanPhone, PHONE_RE, EMAIL_RE, POSTCODE_RE } from "@/lib/validation";
+import { cleanPhone, sanitizeText, PHONE_RE, PHONE_INPUT_RE, EMAIL_RE, POSTCODE_RE } from "@/lib/validation";
 import { TextField } from "@/components/ui/TextField";
 import type { DeliveryAddress } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -52,6 +52,7 @@ function validate(v: Values): Partial<Record<Field, string>> {
   if (!v.first_name.trim()) e.first_name = "Въведете име";
   if (!v.last_name.trim()) e.last_name = "Въведете фамилия";
   if (!v.phone.trim()) e.phone = "Въведете телефон";
+  else if (!PHONE_INPUT_RE.test(v.phone.trim())) e.phone = "Невалиден номер (напр. 0888123456)";
   else if (!PHONE_RE.test(cleanPhone(v.phone))) e.phone = "Невалиден номер (напр. 0888123456)";
   if (v.email.trim() && !EMAIL_RE.test(v.email.trim())) e.email = "Невалиден имейл адрес";
   if (!v.address.trim()) e.address = "Въведете адрес";
@@ -133,15 +134,17 @@ export function CheckoutForm() {
 
     setSubmitting(true);
     const id = newOrderId();
+    // Sanitize every string field — trim + strip HTML tags — before persisting,
+    // so nothing user-supplied can be stored and later rendered as markup.
     const delivery_address: DeliveryAddress = {
-      first_name: values.first_name.trim(),
-      last_name: values.last_name.trim(),
+      first_name: sanitizeText(values.first_name),
+      last_name: sanitizeText(values.last_name),
       phone: cleanPhone(values.phone),
-      email: values.email.trim() || undefined,
-      address: values.address.trim(),
-      city: values.city.trim(),
-      postcode: values.postcode.trim(),
-      note: values.note.trim() || undefined,
+      email: sanitizeText(values.email) || undefined,
+      address: sanitizeText(values.address),
+      city: sanitizeText(values.city),
+      postcode: sanitizeText(values.postcode),
+      note: sanitizeText(values.note) || undefined,
     };
 
     try {
