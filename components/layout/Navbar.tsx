@@ -38,6 +38,14 @@ export function Navbar() {
   const { user } = useUser();
   const accountHref = user ? "/akaunt" : "/vlez";
 
+  // Tooltip label: first name (from full_name metadata) → email → fallback; "Гост" when signed out.
+  const profileLabel = (() => {
+    if (!user) return "Гост";
+    const fullName = (user.user_metadata?.full_name as string | undefined)?.trim();
+    if (fullName) return fullName.split(/\s+/)[0];
+    return user.email ?? "Профил";
+  })();
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
@@ -170,13 +178,22 @@ export function Navbar() {
             >
               <Search className="h-[1.15rem] w-[1.15rem]" strokeWidth={1.4} />
             </button>
-            <Link
-              href={accountHref}
-              aria-label="Профил"
-              className="hidden p-2 transition-opacity hover:opacity-60 sm:block"
-            >
-              <User className="h-[1.15rem] w-[1.15rem]" strokeWidth={1.4} />
-            </Link>
+            <div className="group/profile relative hidden sm:block">
+              <Link
+                href={accountHref}
+                aria-label="Профил"
+                className="block p-2 transition-opacity hover:opacity-60"
+              >
+                <User className="h-[1.15rem] w-[1.15rem]" strokeWidth={1.4} />
+              </Link>
+              {/* hover tooltip — desktop only, doesn't intercept the icon's click */}
+              <span
+                role="tooltip"
+                className="pointer-events-none absolute left-1/2 top-full hidden -translate-x-1/2 translate-y-1 whitespace-nowrap bg-[#0d0d0d] px-[10px] py-[4px] text-[12px] leading-tight text-white opacity-0 transition-opacity duration-150 group-hover/profile:opacity-100 md:block"
+              >
+                {profileLabel}
+              </span>
+            </div>
             <button
               type="button"
               aria-label="Кошница"
