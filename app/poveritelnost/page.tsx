@@ -33,7 +33,7 @@ export default function PrivacyPage() {
 
       <Section title="1. Администратор на лични данни">
         <p>
-          <strong className="font-medium text-ink">NOEM Studio</strong>
+          <strong className="font-medium text-ink">{BRAND.name}</strong>
           <br />
           ЕИК: <Fill>[ЕИК]</Fill>
           <br />
