@@ -189,7 +189,7 @@ export function Navbar() {
               {/* hover tooltip — desktop only, doesn't intercept the icon's click */}
               <span
                 role="tooltip"
-                className="pointer-events-none absolute left-1/2 top-full hidden -translate-x-1/2 translate-y-1 whitespace-nowrap bg-[#0d0d0d] px-[10px] py-[4px] text-[12px] leading-tight text-white opacity-0 transition-opacity duration-150 group-hover/profile:opacity-100 md:block"
+                className="pointer-events-none absolute left-1/2 top-full hidden -translate-x-1/2 translate-y-1 whitespace-nowrap border border-[#e8e6e1] bg-white px-[12px] py-[6px] text-[12px] uppercase leading-tight tracking-widest text-[#0d0d0d] opacity-0 shadow-[0_2px_8px_rgba(0,0,0,0.08)] transition-opacity duration-150 group-hover/profile:opacity-100 md:block"
               >
                 {profileLabel}
               </span>
