@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Order } from "@/lib/types";
 import { ORDER_STATUS_LABELS } from "@/lib/orders";
@@ -23,20 +24,56 @@ export function OrderHistory({ orders }: { orders: Order[] }) {
         <ul className="mt-5 divide-y divide-hairline">
           {orders.map((o) => {
             const count = o.items.reduce((n, i) => n + i.quantity, 0);
+            const preview = o.items.slice(0, 3);
+            const firstName = o.items[0]?.name_bg ?? "Поръчка";
+            const extra = o.items.length - 1;
             return (
-              <li key={o.id} className="flex items-center justify-between gap-4 py-4">
-                <div>
-                  <p className="text-sm font-medium tracking-widest2">#{o.id.slice(0, 8).toUpperCase()}</p>
-                  <p className="mt-1 text-[0.78rem] text-ash">
-                    {formatDate(o.created_at)} · {count} {count === 1 ? "артикул" : "артикула"}
-                  </p>
+              <li key={o.id} className="py-4">
+                <div className="flex items-center gap-4">
+                  {/* product image thumbnails */}
+                  <div className="flex shrink-0 gap-1.5">
+                    {preview.map((item, idx) => (
+                      <div
+                        key={`${item.productId}-${item.size}-${item.color}-${idx}`}
+                        className="relative h-12 w-12 shrink-0 overflow-hidden rounded bg-mist"
+                      >
+                        {item.image && (
+                          <Image
+                            src={item.image}
+                            alt={item.name_bg}
+                            fill
+                            sizes="48px"
+                            className="object-cover"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* product names + meta */}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium leading-snug">
+                      {firstName}
+                      {extra > 0 && <span className="text-ash"> и още {extra}</span>}
+                    </p>
+                    <p className="mt-1 text-[0.78rem] text-ash">
+                      {formatDate(o.created_at)} · {count} {count === 1 ? "артикул" : "артикула"}
+                    </p>
+                  </div>
+
+                  {/* price + status */}
+                  <div className="shrink-0 text-right">
+                    <p className="text-sm tabular-nums">{formatEUR(o.total_bgn)}</p>
+                    <span className="mt-1 inline-block border border-hairline bg-mist px-2 py-0.5 text-[0.62rem] uppercase tracking-widest2 text-ash">
+                      {ORDER_STATUS_LABELS[o.status]}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm tabular-nums">{formatEUR(o.total_bgn)}</p>
-                  <span className="mt-1 inline-block border border-hairline bg-mist px-2 py-0.5 text-[0.62rem] uppercase tracking-widest2 text-ash">
-                    {ORDER_STATUS_LABELS[o.status]}
-                  </span>
-                </div>
+
+                {/* faint reference number */}
+                <p className="mt-2 text-[0.62rem] tracking-widest2 text-ash/70">
+                  Реф. #{o.id.slice(0, 8).toUpperCase()}
+                </p>
               </li>
             );
           })}
