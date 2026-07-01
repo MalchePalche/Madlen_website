@@ -8,8 +8,8 @@ export function Hero() {
       {/* mobile — autoplaying, muted, looping video background */}
       <video
         className="absolute inset-0 block h-full w-full object-cover md:hidden"
-        src="/Hero_final.mp4"
-        poster="/hero-poster.jpg"
+        src="/Hero_mobile_final.mp4"
+        poster="/hero-mobile-poster.jpg"
         autoPlay
         muted
         loop
