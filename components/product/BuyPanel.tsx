@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check, Truck, RotateCcw, Banknote } from "lucide-react";
+import { Check, Truck, RotateCcw, Banknote, Lock } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCart } from "@/store/cart";
-import { CATEGORIES } from "@/lib/config";
+import { BRAND, CATEGORIES } from "@/lib/config";
 import { formatEUR, cn } from "@/lib/utils";
 import { Accordion } from "@/components/ui/Accordion";
 
@@ -203,6 +203,19 @@ export function BuyPanel({ product }: { product: Product }) {
           Този продукт е изчерпан в момента.
         </p>
       )}
+
+      {/* trust badges */}
+      <ul className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-ash">
+        <li className="inline-flex items-center gap-1.5 text-[0.75rem]">
+          <Lock className="h-3.5 w-3.5" strokeWidth={1.5} /> Сигурно плащане
+        </li>
+        <li className="inline-flex items-center gap-1.5 text-[0.75rem]">
+          <Truck className="h-3.5 w-3.5" strokeWidth={1.5} /> Безплатна доставка над {BRAND.freeShippingThreshold} €
+        </li>
+        <li className="inline-flex items-center gap-1.5 text-[0.75rem]">
+          <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.5} /> Връщане до 30 дни
+        </li>
+      </ul>
 
       {/* quick facts */}
       <ul className="mt-7 space-y-3 border-t border-hairline pt-6 text-[0.82rem]">
