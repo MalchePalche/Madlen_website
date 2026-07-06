@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { deliveryCost } from "@/lib/orders";
 import type { CartItem, DeliveryAddress } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -142,11 +143,51 @@ export async function POST(req: Request) {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  // ---- verify item prices server-side (never trust client-sent amounts) ------
+  // Look up the real price for every product by its (unique) slug and reject if
+  // any client-sent price drifts from it by more than one cent. The order total
+  // is then recomputed from these verified prices, not from the client payload,
+  // so a tampered cart can't lower what gets charged/recorded.
+  const slugs = Array.from(new Set(body.items.map((i) => i.slug).filter(Boolean)));
+  const { data: dbProducts, error: priceErr } = await admin
+    .from("products")
+    .select("slug, price_bgn")
+    .in("slug", slugs);
+  if (priceErr) {
+    return NextResponse.json({ error: "order_failed" }, { status: 500 });
+  }
+
+  const priceBySlug = new Map<string, number>(
+    (dbProducts ?? []).map((p) => [p.slug as string, Number(p.price_bgn)]),
+  );
+
+  let subtotal = 0;
+  for (const item of body.items) {
+    const real = priceBySlug.get(item.slug);
+    if (real === undefined || !Number.isFinite(real)) {
+      return NextResponse.json({ error: "Невалидна цена на продукт" }, { status: 400 });
+    }
+    // Compare in integer cents so floating-point noise can't trip the check.
+    const realCents = Math.round(real * 100);
+    const sentCents = Math.round(Number(item.price_bgn) * 100);
+    if (!Number.isFinite(sentCents) || Math.abs(realCents - sentCents) > 1) {
+      return NextResponse.json({ error: "Невалидна цена на продукт" }, { status: 400 });
+    }
+    const qty = Math.trunc(Number(item.quantity));
+    if (!Number.isFinite(qty) || qty <= 0) {
+      return NextResponse.json({ error: "Невалидно количество на продукт." }, { status: 400 });
+    }
+    subtotal += real * qty;
+  }
+  subtotal = Math.round(subtotal * 100) / 100;
+  const delivery = deliveryCost(subtotal);
+  const verifiedTotal = Math.round((subtotal + delivery) * 100) / 100;
+
   const { error } = await admin.from("orders").insert({
     id: body.id,
     user_id: userId,
     items: body.items,
-    total_bgn: body.total_bgn,
+    total_bgn: verifiedTotal,
     delivery_address: address,
     payment_method: "cod",
     status: "pending",
@@ -158,8 +199,6 @@ export async function POST(req: Request) {
   // ---- fire the confirmation email (best-effort, never blocks the order) -----
   if (address.email) {
     try {
-      const subtotal = body.items.reduce((sum, i) => sum + i.price_bgn * i.quantity, 0);
-      const delivery = Math.max(0, body.total_bgn - subtotal);
       await fetch(new URL("/api/confirm-order", req.url), {
         method: "POST",
         headers: {
@@ -171,9 +210,10 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           id: body.id,
           items: body.items,
+          // use the server-verified amounts, not the client payload
           subtotal,
           delivery,
-          total_bgn: body.total_bgn,
+          total_bgn: verifiedTotal,
           delivery_address: address,
         }),
       });
