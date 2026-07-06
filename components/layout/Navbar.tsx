@@ -15,9 +15,6 @@ const DAMSKO_CATEGORIES = [
   { label: "Тениски и топове", href: "/damsko?cat=topove" },
   { label: "Ризи", href: "/damsko?cat=topove" },
   { label: "Панталони", href: "/damsko?cat=pantaloni" },
-  { label: "Поли", href: "/damsko?cat=poli" },
-  { label: "Якета", href: "/damsko?cat=yaketa" },
-  { label: "Костюми", href: "/damsko?cat=kostumi" },
 ] as const;
 import { useCart, selectCount } from "@/store/cart";
 import { useUser } from "@/components/auth/AuthProvider";
