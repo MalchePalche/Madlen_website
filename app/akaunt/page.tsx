@@ -7,6 +7,7 @@ import { PersonalDetails } from "@/components/account/PersonalDetails";
 import { DefaultAddress } from "@/components/account/DefaultAddress";
 import { OrderHistory } from "@/components/account/OrderHistory";
 import { SignOutButton } from "@/components/account/SignOutButton";
+import { DeleteAccount } from "@/components/account/DeleteAccount";
 
 export const metadata: Metadata = { title: "Моят профил", robots: { index: false } };
 
@@ -70,6 +71,8 @@ export default async function AccountPage() {
       <div className="mt-6">
         <OrderHistory orders={orders} />
       </div>
+
+      <DeleteAccount />
     </div>
   );
 }
