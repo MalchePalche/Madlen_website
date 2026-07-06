@@ -80,7 +80,7 @@ export async function createOrder(order: NewOrder): Promise<void> {
 
 // ---- confirmation hand-off (survives the redirect within the tab) ---------
 
-const STORE_KEY = "madlen-last-order";
+const STORE_KEY = "noem-last-order";
 
 export interface StoredOrder {
   id: string;

@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
   description:
     "Минималистична българска модна марка. Мъжко и дамско облекло, наложен платеж, доставка в цялата страна.",
-  metadataBase: new URL("https://madlen.bg"),
+  metadataBase: new URL("https://noem-studio.com"),
   manifest: "/manifest.json",
   icons: {
     icon: [

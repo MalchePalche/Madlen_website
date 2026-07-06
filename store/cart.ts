@@ -62,7 +62,7 @@ export const useCart = create<CartState>()(
       toggleCart: () => set((s) => ({ isOpen: !s.isOpen })),
     }),
     {
-      name: "madlen-cart",
+      name: "noem-cart",
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({ items: s.items }),
       onRehydrateStorage: () => (state) => {

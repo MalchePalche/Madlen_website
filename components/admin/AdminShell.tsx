@@ -11,6 +11,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useUser } from "@/components/auth/AuthProvider";
+import { BRAND } from "@/lib/config";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -49,8 +50,8 @@ export function AdminShell({
       {/* Sidebar — desktop */}
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-60 flex-col border-r border-hairline bg-paper lg:flex">
         <div className="border-b border-hairline px-6 py-6">
-          <Link href="/admin" className="font-display text-2xl tracking-tight">
-            NOEM STUDIO
+          <Link href="/admin" className="font-display text-2xl uppercase tracking-tight">
+            {BRAND.name}
           </Link>
           <p className="eyebrow mt-1">Админ панел</p>
         </div>
@@ -101,8 +102,8 @@ export function AdminShell({
           background fills the inset to cover the status-bar area. List headers
           pin just below it at top-[calc(3.5rem+env(safe-area-inset-top))]. */}
       <header className="sticky top-0 z-40 flex h-[calc(3.5rem+env(safe-area-inset-top))] items-center justify-between border-b border-hairline bg-paper px-5 pt-[env(safe-area-inset-top)] lg:hidden">
-        <Link href="/admin" className="font-display text-xl">
-          NOEM STUDIO <span className="eyebrow align-middle">Админ</span>
+        <Link href="/admin" className="font-display text-xl uppercase">
+          {BRAND.name} <span className="eyebrow align-middle">Админ</span>
         </Link>
         <button
           type="button"

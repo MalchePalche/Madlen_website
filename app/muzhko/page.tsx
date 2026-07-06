@@ -6,7 +6,7 @@ import { Reveal } from "@/components/ui/Reveal";
 
 export const metadata: Metadata = {
   title: "Мъжко — Очаквайте скоро",
-  description: "Мъжката колекция на NOEM Studio предстои. Следете ни за новини.",
+  description: `Мъжката колекция на ${BRAND.name} предстои. Следете ни за новини.`,
 };
 
 export default function MuzhkoPage() {
