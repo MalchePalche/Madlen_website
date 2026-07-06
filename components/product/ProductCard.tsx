@@ -13,6 +13,16 @@ export function ProductCard({ product, priority = false }: { product: Product; p
   const secondary = product.images[1] ?? product.images[0];
   const onSale = product.compare_at_bgn && product.compare_at_bgn > product.price_bgn;
 
+  // Availability: sold out when there's no stock, or every size is flagged out
+  // of stock. Quick-add is hidden entirely in that case.
+  const oosSizes = product.out_of_stock_sizes ?? [];
+  const soldOut =
+    product.stock <= 0 ||
+    (product.sizes.length > 0 && product.sizes.every((s) => oosSizes.includes(s)));
+  // Default to the first in-stock size (skipping sold-out ones); sizeless
+  // products fall back to "ONE".
+  const defaultSize = product.sizes.find((s) => !oosSizes.includes(s)) ?? "ONE";
+
   // Quick-add uses the first available size + colour; full choice lives on the PDP.
   const quickAdd = () => {
     addItem({
@@ -21,7 +31,7 @@ export function ProductCard({ product, priority = false }: { product: Product; p
       name_bg: product.name_bg,
       price_bgn: product.price_bgn,
       image: primary,
-      size: product.sizes[0] ?? "ONE",
+      size: defaultSize,
       color: product.colors[0]?.name ?? "—",
       quantity: 1,
     });
@@ -66,15 +76,18 @@ export function ProductCard({ product, priority = false }: { product: Product; p
         </div>
       </Link>
 
-      {/* quick add — appears on hover (desktop), always tappable (mobile) */}
-      <button
-        type="button"
-        onClick={quickAdd}
-        aria-label={`Добави ${product.name_bg} в кошницата`}
-        className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center bg-paper text-ink opacity-100 shadow-sm transition-all duration-300 ease-editorial hover:bg-noir hover:text-paper lg:opacity-0 lg:group-hover:opacity-100"
-      >
-        <Plus className="h-4 w-4" strokeWidth={1.6} />
-      </button>
+      {/* quick add — appears on hover (desktop), always tappable (mobile).
+          Hidden when the product is sold out. */}
+      {!soldOut && (
+        <button
+          type="button"
+          onClick={quickAdd}
+          aria-label={`Добави ${product.name_bg} в кошницата`}
+          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center bg-paper text-ink opacity-100 shadow-sm transition-all duration-300 ease-editorial hover:bg-noir hover:text-paper lg:opacity-0 lg:group-hover:opacity-100"
+        >
+          <Plus className="h-4 w-4" strokeWidth={1.6} />
+        </button>
+      )}
 
       {/* meta */}
       <div className="flex flex-col gap-2 py-3.5">
