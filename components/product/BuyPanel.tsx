@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Check, Truck, RotateCcw, Banknote, Lock } from "lucide-react";
+import { Check, Truck, RotateCcw, Banknote, Lock, Heart } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCart } from "@/store/cart";
 import { BRAND, CATEGORIES } from "@/lib/config";
 import { formatEUR, cn } from "@/lib/utils";
 import { Accordion } from "@/components/ui/Accordion";
+import { isInWishlist, toggleWishlist, WISHLIST_EVENT } from "@/lib/wishlist";
 
 export function BuyPanel({ product }: { product: Product }) {
   const addItem = useCart((s) => s.addItem);
@@ -45,6 +46,20 @@ export function BuyPanel({ product }: { product: Product }) {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  // Wishlist state is read after mount (localStorage is client-only) and kept in
+  // sync via the shared event so the card + PDP hearts stay consistent.
+  const [wished, setWished] = useState(false);
+  useEffect(() => {
+    const sync = () => setWished(isInWishlist(product.slug));
+    sync();
+    window.addEventListener(WISHLIST_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(WISHLIST_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, [product.slug]);
 
   const categoryLabel = CATEGORIES.find((c) => c.slug === product.category)?.label ?? product.category;
 
@@ -110,7 +125,18 @@ export function BuyPanel({ product }: { product: Product }) {
   return (
     <div className="lg:sticky lg:top-24 lg:self-start">
       <p className="eyebrow">{categoryLabel}</p>
-      <h1 className="mt-3 font-display text-4xl leading-tight lg:text-5xl">{product.name_bg}</h1>
+      <div className="mt-3 flex items-start justify-between gap-4">
+        <h1 className="font-display text-4xl leading-tight lg:text-5xl">{product.name_bg}</h1>
+        <button
+          type="button"
+          onClick={() => setWished(toggleWishlist(product.slug))}
+          aria-label={wished ? "Премахни от любими" : "Добави в любими"}
+          aria-pressed={wished}
+          className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center border border-hairline text-ink transition-colors hover:border-ink"
+        >
+          <Heart className="h-5 w-5" strokeWidth={1.5} fill={wished ? "currentColor" : "none"} />
+        </button>
+      </div>
 
       {/* price */}
       <div className="mt-4 flex items-center gap-3">

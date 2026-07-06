@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, User, ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, X, ChevronDown, Heart } from "lucide-react";
 import { BRAND, NAV_LINKS } from "@/lib/config";
 
 /** Category submenu shown under the "Дамско" nav item (desktop dropdown + mobile accordion). */
@@ -175,6 +175,13 @@ export function Navbar() {
             >
               <Search className="h-[1.15rem] w-[1.15rem]" strokeWidth={1.4} />
             </button>
+            <Link
+              href="/wishlist"
+              aria-label="Любими"
+              className="hidden p-2 transition-opacity hover:opacity-60 sm:block"
+            >
+              <Heart className="h-[1.15rem] w-[1.15rem]" strokeWidth={1.4} />
+            </Link>
             <div className="group/profile relative hidden sm:block">
               <Link
                 href={accountHref}
@@ -308,6 +315,9 @@ export function Navbar() {
         <div className="gutter mt-2 flex flex-col gap-4">
           <Link href={accountHref} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-sm">
             <User className="h-4 w-4" strokeWidth={1.4} /> {user ? "Моят профил" : "Вход / Регистрация"}
+          </Link>
+          <Link href="/wishlist" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-sm">
+            <Heart className="h-4 w-4" strokeWidth={1.4} /> Любими
           </Link>
           <button type="button" onClick={openSearch} className="flex items-center gap-3 text-sm">
             <Search className="h-4 w-4" strokeWidth={1.4} /> Търсене

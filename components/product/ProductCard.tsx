@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Heart } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCart } from "@/store/cart";
 import { formatEUR } from "@/lib/utils";
+import { isInWishlist, toggleWishlist, WISHLIST_EVENT } from "@/lib/wishlist";
 
 export function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const addItem = useCart((s) => s.addItem);
@@ -35,6 +37,26 @@ export function ProductCard({ product, priority = false }: { product: Product; p
       color: product.colors[0]?.name ?? "—",
       quantity: 1,
     });
+  };
+
+  // Wishlist state is read after mount (localStorage is client-only) and kept in
+  // sync via the shared event so every heart for this slug updates together.
+  const [wished, setWished] = useState(false);
+  useEffect(() => {
+    const sync = () => setWished(isInWishlist(product.slug));
+    sync();
+    window.addEventListener(WISHLIST_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(WISHLIST_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, [product.slug]);
+
+  const onToggleWish = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setWished(toggleWishlist(product.slug));
   };
 
   return (
@@ -76,14 +98,25 @@ export function ProductCard({ product, priority = false }: { product: Product; p
         </div>
       </Link>
 
-      {/* quick add — appears on hover (desktop), always tappable (mobile).
-          Hidden when the product is sold out. */}
+      {/* wishlist toggle — always visible, top-right corner of the image */}
+      <button
+        type="button"
+        onClick={onToggleWish}
+        aria-label={wished ? "Премахни от любими" : "Добави в любими"}
+        aria-pressed={wished}
+        className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center bg-paper text-ink shadow-sm transition-colors hover:bg-noir hover:text-paper"
+      >
+        <Heart className="h-4 w-4" strokeWidth={1.6} fill={wished ? "currentColor" : "none"} />
+      </button>
+
+      {/* quick add — sits below the heart; appears on hover (desktop), always
+          tappable (mobile). Hidden when the product is sold out. */}
       {!soldOut && (
         <button
           type="button"
           onClick={quickAdd}
           aria-label={`Добави ${product.name_bg} в кошницата`}
-          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center bg-paper text-ink opacity-100 shadow-sm transition-all duration-300 ease-editorial hover:bg-noir hover:text-paper lg:opacity-0 lg:group-hover:opacity-100"
+          className="absolute right-3 top-14 flex h-9 w-9 items-center justify-center bg-paper text-ink opacity-100 shadow-sm transition-all duration-300 ease-editorial hover:bg-noir hover:text-paper lg:opacity-0 lg:group-hover:opacity-100"
         >
           <Plus className="h-4 w-4" strokeWidth={1.6} />
         </button>
