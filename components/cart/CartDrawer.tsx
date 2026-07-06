@@ -82,18 +82,19 @@ export function CartDrawer() {
               <>
                 {/* free-shipping progress */}
                 <div className="border-b border-hairline px-6 py-4">
-                  <p className="text-[0.74rem] text-ash">
+                  <p className="text-[0.74rem]">
                     {remaining > 0 ? (
-                      <>
-                        Още <span className="font-semibold text-ink">{formatEUR(remaining)}</span> до безплатна доставка
-                      </>
+                      <span className="text-ash">
+                        Добави още{" "}
+                        <span className="font-semibold text-ink">{formatEUR(remaining)}</span> за безплатна доставка
+                      </span>
                     ) : (
-                      <span className="font-semibold text-ink">Имате безплатна доставка 🎉</span>
+                      <span className="font-semibold text-green-600">🎉 Имате безплатна доставка!</span>
                     )}
                   </p>
-                  <div className="mt-2 h-px w-full bg-hairline">
+                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-mist">
                     <div
-                      className="h-px bg-ink transition-all duration-500 ease-editorial"
+                      className="h-full rounded-full bg-ink transition-all duration-500 ease-editorial"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
