@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Check, Truck, RotateCcw, Banknote, Lock } from "lucide-react";
 import type { Product } from "@/lib/types";
@@ -26,12 +26,37 @@ export function BuyPanel({ product }: { product: Product }) {
   const [error, setError] = useState(false);
   const [added, setAdded] = useState(false);
 
+  // Mobile sticky bar: shown once the main add-to-cart button scrolls out of view.
+  const buyButtonRef = useRef<HTMLButtonElement>(null);
+  const sizeSectionRef = useRef<HTMLDivElement>(null);
+  const [showSticky, setShowSticky] = useState(false);
+
+  useEffect(() => {
+    const el = buyButtonRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Only after we've scrolled *past* the button (its top is above the
+        // viewport) — not while it's still below the fold on first load.
+        setShowSticky(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+      },
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const categoryLabel = CATEGORIES.find((c) => c.slug === product.category)?.label ?? product.category;
 
-  const handleAdd = () => {
+  const handleAdd = (opts?: { scrollToSizeOnError?: boolean }) => {
     if (soldOut) return;
     if (product.sizes.length > 0 && !size) {
       setError(true);
+      // From the sticky bar the size selector is off-screen — bring it into view
+      // so the validation message is actually seen.
+      if (opts?.scrollToSizeOnError) {
+        sizeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
       return;
     }
     addItem({
@@ -131,7 +156,7 @@ export function BuyPanel({ product }: { product: Product }) {
 
       {/* size selector */}
       {product.sizes.length > 0 && (
-        <div className="mt-7">
+        <div ref={sizeSectionRef} className="mt-7">
           <div className="flex items-center justify-between">
             <p className="text-[0.78rem] uppercase tracking-widest2 text-ash">Размер</p>
             <Link href="/razmerna-tablica" className="text-[0.74rem] text-ash underline-offset-4 hover:text-ink hover:underline">
@@ -182,8 +207,9 @@ export function BuyPanel({ product }: { product: Product }) {
 
       {/* add to cart */}
       <button
+        ref={buyButtonRef}
         type="button"
-        onClick={handleAdd}
+        onClick={() => handleAdd()}
         disabled={soldOut}
         className={cn(
           "btn-noir mt-6 w-full",
@@ -233,6 +259,44 @@ export function BuyPanel({ product }: { product: Product }) {
       {/* details accordion */}
       <div className="mt-8">
         <Accordion items={accordion} defaultOpen={0} />
+      </div>
+
+      {/* sticky mobile add-to-cart — slides up once the main button scrolls away */}
+      <div
+        aria-hidden={!showSticky}
+        className={cn(
+          "fixed inset-x-0 bottom-0 z-50 border-t border-hairline bg-white pb-[env(safe-area-inset-bottom)] transition-transform duration-300 md:hidden",
+          showSticky ? "translate-y-0" : "pointer-events-none translate-y-full",
+        )}
+      >
+        <div className="gutter flex items-center gap-3 py-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium leading-tight">{product.name_bg}</p>
+            <p className="mt-0.5 text-[0.72rem] text-ash">
+              {size && <span>Размер {size} · </span>}
+              <span className="tabular-nums text-ink">{formatEUR(product.price_bgn)}</span>
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleAdd({ scrollToSizeOnError: true })}
+            disabled={soldOut}
+            className={cn(
+              "btn-noir shrink-0",
+              soldOut && "cursor-not-allowed bg-ash hover:bg-ash",
+            )}
+          >
+            {soldOut ? (
+              "Изчерпан"
+            ) : added ? (
+              <>
+                <Check className="h-4 w-4" strokeWidth={2} /> Добавено
+              </>
+            ) : (
+              "Добави в кошницата"
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
