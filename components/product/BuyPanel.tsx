@@ -173,10 +173,10 @@ export function BuyPanel({ product }: { product: Product }) {
         </div>
       )}
 
-      {/* stock note */}
+      {/* low-stock warning */}
       {lowStock && !soldOut && (
-        <p className="mt-5 text-[0.78rem] text-ash">
-          Последни {product.stock} {product.stock === 1 ? "брой" : "броя"} в наличност.
+        <p className="mt-5 text-[0.78rem] font-medium text-amber-600">
+          Само {product.stock} бр. останали
         </p>
       )}
 
