@@ -21,11 +21,15 @@ export function ProductForm({ product }: { product?: Product }) {
 
   const [nameBg, setNameBg] = useState(product?.name_bg ?? "");
   const [price, setPrice] = useState(product ? String(product.price_bgn) : "");
+  const [compareAt, setCompareAt] = useState(
+    product?.compare_at_bgn ? String(product.compare_at_bgn) : "",
+  );
   const [gender, setGender] = useState<Gender>(product?.gender ?? "female");
   const [category, setCategory] = useState(product?.category ?? CATEGORIES[0].slug);
   const [description, setDescription] = useState(product?.description_bg ?? "");
   const [material, setMaterial] = useState(product?.material_bg ?? "");
   const [sizes, setSizes] = useState<string[]>(product?.sizes ?? []);
+  const [oosSizes, setOosSizes] = useState<string[]>(product?.out_of_stock_sizes ?? []);
   const [colors, setColors] = useState<ProductColor[]>(product?.colors ?? []);
   const [isNew, setIsNew] = useState(product?.is_new ?? false);
   const [stock, setStock] = useState(product ? String(product.stock) : "0");
@@ -37,13 +41,28 @@ export function ProductForm({ product }: { product?: Product }) {
   const [error, setError] = useState<string | null>(null);
 
   const priceNum = Number(price);
+  const compareNum = compareAt.trim() ? Number(compareAt) : null;
   const nameError = attempted && !nameBg.trim() ? "Въведете име" : undefined;
   const priceError =
     attempted && (!Number.isFinite(priceNum) || priceNum <= 0) ? "Невалидна цена" : undefined;
+  // Optional; when set it must be a valid number higher than the sale price so
+  // the strike-through original reads correctly on the card/PDP.
+  const compareError =
+    attempted &&
+    compareNum !== null &&
+    (!Number.isFinite(compareNum) || compareNum <= priceNum)
+      ? "Трябва да е по-висока от цената"
+      : undefined;
   const imagesError = attempted && images.length === 0 ? "Добавете поне една снимка" : undefined;
 
-  const toggleSize = (s: string) =>
+  const toggleSize = (s: string) => {
     setSizes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
+    // Removing a size must also clear it from the out-of-stock subset.
+    if (sizes.includes(s)) setOosSizes((prev) => prev.filter((x) => x !== s));
+  };
+
+  const toggleOos = (s: string) =>
+    setOosSizes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
 
   const addColor = () => setColors((prev) => [...prev, { name: "", hex: "#000000" }]);
   const updateColor = (i: number, patch: Partial<ProductColor>) =>
@@ -80,7 +99,15 @@ export function ProductForm({ product }: { product?: Product }) {
     setAttempted(true);
     setError(null);
 
-    if (!nameBg.trim() || !Number.isFinite(priceNum) || priceNum <= 0 || images.length === 0) {
+    const compareInvalid =
+      compareNum !== null && (!Number.isFinite(compareNum) || compareNum <= priceNum);
+    if (
+      !nameBg.trim() ||
+      !Number.isFinite(priceNum) ||
+      priceNum <= 0 ||
+      compareInvalid ||
+      images.length === 0
+    ) {
       return;
     }
 
@@ -91,11 +118,14 @@ export function ProductForm({ product }: { product?: Product }) {
       name_bg: nameBg.trim(),
       name_en: transliterate(nameBg.trim()),
       price_bgn: priceNum,
+      compare_at_bgn: compareNum,
       category,
       gender,
       description_bg: description.trim() || null,
       material_bg: material.trim() || null,
       sizes,
+      // keep the out-of-stock set a strict subset of the offered sizes
+      out_of_stock_sizes: oosSizes.filter((s) => sizes.includes(s)),
       // drop half-filled colour rows
       colors: colors.filter((c) => c.name.trim()).map((c) => ({ name: c.name.trim(), hex: c.hex })),
       is_new: isNew,
@@ -139,6 +169,20 @@ export function ProductForm({ product }: { product?: Product }) {
           onChange={(e) => setPrice(e.target.value)}
           error={priceError}
         />
+        <TextField
+          id="p-compare"
+          label="Оригинална цена преди намаление (€)"
+          type="number"
+          min="0"
+          step="0.01"
+          value={compareAt}
+          onChange={(e) => setCompareAt(e.target.value)}
+          error={compareError}
+          placeholder="напр. 79.00"
+        />
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2">
         <TextField
           id="p-stock"
           label="Наличност (бр.)"
@@ -228,6 +272,38 @@ export function ProductForm({ product }: { product?: Product }) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Out-of-stock sizes — a subset of the sizes selected above */}
+      <div>
+        <span className={LABEL}>Изчерпани размери</span>
+        {sizes.length === 0 ? (
+          <p className="mt-2 text-[0.78rem] text-ash">Първо изберете размери по-горе.</p>
+        ) : (
+          <>
+            <div className="mt-2 grid grid-cols-5 gap-2 sm:flex sm:flex-wrap">
+              {SIZE_OPTIONS.filter((s) => sizes.includes(s)).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  aria-pressed={oosSizes.includes(s)}
+                  onClick={() => toggleOos(s)}
+                  className={cn(
+                    "flex min-h-[44px] items-center justify-center border px-2 text-sm transition-colors sm:min-w-[3.25rem] sm:px-4",
+                    oosSizes.includes(s)
+                      ? "border-noir bg-noir text-paper line-through"
+                      : "border-hairline hover:border-ink",
+                  )}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-[0.78rem] text-ash">
+              Маркираните размери се показват като недостъпни на страницата на продукта.
+            </p>
+          </>
+        )}
       </div>
 
       {/* Colors */}
