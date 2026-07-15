@@ -26,10 +26,25 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const product = await getProductBySlug(params.slug);
   if (!product) return { title: "Продуктът не е намерен" };
+
+  const description = product.description_bg ?? product.material_bg ?? product.name_bg;
+  const ogImage = product.images[0] || "/logo.png";
+
   return {
     title: product.name_bg,
-    description: product.description_bg ?? product.material_bg ?? product.name_bg,
-    openGraph: { title: product.name_bg, images: product.images.slice(0, 1) },
+    description,
+    openGraph: {
+      title: product.name_bg,
+      description,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: product.name_bg }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name_bg,
+      description: (product.description_bg ?? product.name_bg).slice(0, 155),
+      images: [ogImage],
+    },
   };
 }
 
