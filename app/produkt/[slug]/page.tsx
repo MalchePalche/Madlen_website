@@ -27,11 +27,17 @@ export async function generateMetadata({
   const product = await getProductBySlug(params.slug);
   if (!product) return { title: "Продуктът не е намерен" };
 
-  const description = product.description_bg ?? product.material_bg ?? product.name_bg;
+  // Meta description: prefer the product description, stripped of any HTML and
+  // clamped to 155 characters so it renders cleanly in search results.
+  const description = (product.description_bg ?? product.material_bg ?? product.name_bg)
+    .replace(/<[^>]*>/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 155);
   const ogImage = product.images[0] || "/logo.png";
 
   return {
-    title: product.name_bg,
+    title: { absolute: `${product.name_bg} | Noem Studio` },
     description,
     openGraph: {
       title: product.name_bg,
@@ -42,7 +48,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: product.name_bg,
-      description: (product.description_bg ?? product.name_bg).slice(0, 155),
+      description,
       images: [ogImage],
     },
   };
@@ -55,8 +61,38 @@ export default async function ProductPage({ params }: { params: { slug: string }
   const related = await getRelatedProducts(product, 4);
   const gender = genderRoute(product.gender);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name_bg,
+    description: product.description_bg ?? product.material_bg ?? product.name_bg,
+    image: [product.images[0] || "https://noem-studio.com/logo.png"],
+    brand: {
+      "@type": "Brand",
+      name: "Noem Studio",
+    },
+    offers: {
+      "@type": "Offer",
+      url: `https://noem-studio.com/produkt/${product.slug}`,
+      priceCurrency: "EUR",
+      price: String(product.price_bgn),
+      availability:
+        product.stock === 0
+          ? "https://schema.org/OutOfStock"
+          : "https://schema.org/InStock",
+      seller: {
+        "@type": "Organization",
+        name: "Noem Studio",
+      },
+    },
+  };
+
   return (
     <article className="gutter mx-auto max-w-edge pb-20 pt-6 lg:pt-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* breadcrumb */}
       <nav aria-label="Навигация" className="flex min-w-0 items-center gap-1.5 text-[0.74rem] text-ash">
         <Link href="/" className="shrink-0 whitespace-nowrap hover:text-ink">

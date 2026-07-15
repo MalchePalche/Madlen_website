@@ -6,6 +6,11 @@ import { CategoryPills } from "@/components/home/CategoryPills";
 import { getNewArrivals } from "@/lib/products";
 
 export const metadata: Metadata = {
+  // `absolute` opts out of the root layout's `%s · Noem Studio` template so the
+  // homepage title reads exactly as intended.
+  title: { absolute: "Noem Studio — Дамска мода онлайн" },
+  description:
+    "Открийте новата колекция на Noem Studio. Дамски рокли, сетове, блузи и костюми с безплатна доставка над 100€.",
   openGraph: {
     title: "Noem Studio — Дамска мода онлайн",
     description: "Открийте новата колекция на Noem Studio.",

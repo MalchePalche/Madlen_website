@@ -3,8 +3,9 @@ import { Collection } from "@/components/collection/Collection";
 import type { SearchParams } from "@/lib/filters";
 
 export const metadata: Metadata = {
-  title: "Дамско",
-  description: "Дамско облекло за всеки ден и специални поводи.",
+  title: { absolute: "Дамско облекло | Noem Studio" },
+  description:
+    "Разгледайте дамската колекция на Noem Studio — рокли, сетове, блузи, панталони и костюми.",
 };
 
 export default function DamskoPage({ searchParams }: { searchParams: SearchParams }) {

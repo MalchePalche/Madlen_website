@@ -3,8 +3,8 @@ import { Collection } from "@/components/collection/Collection";
 import type { SearchParams } from "@/lib/filters";
 
 export const metadata: Metadata = {
-  title: "Ново",
-  description: "Най-новите попълнения в колекцията на Noem Studio.",
+  title: { absolute: "Нови продукти | Noem Studio" },
+  description: "Последните новости от Noem Studio. Нови дрехи добавяни редовно.",
 };
 
 export default function NovoPage({ searchParams }: { searchParams: SearchParams }) {
