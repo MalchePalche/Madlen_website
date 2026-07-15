@@ -82,7 +82,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
             >
               <Image
                 src={src}
-                alt={i === 0 ? alt : `${alt} — изглед ${i + 1}`}
+                alt={`${alt} — снимка ${i + 1}`}
                 fill
                 priority={i === 0}
                 sizes="(max-width: 1024px) 100vw, 45vw"
