@@ -28,6 +28,9 @@ export const metadata: Metadata = {
   description:
     "Минималистична българска модна марка. Мъжко и дамско облекло, наложен платеж, доставка в цялата страна.",
   metadataBase: new URL("https://noem-studio.com"),
+  verification: {
+    google: "CeChw6h12GU_ixoztJS1Q_ygto7sMFZbzZ89WPxH07o",
+  },
   manifest: "/manifest.json",
   icons: {
     icon: [
