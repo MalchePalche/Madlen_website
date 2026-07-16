@@ -3,16 +3,17 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ShoppingBag, Banknote, Loader2, AlertCircle } from "lucide-react";
+import { ShoppingBag, Banknote, Loader2, AlertCircle, Home, MapPin } from "lucide-react";
 import { useCart, selectSubtotal } from "@/store/cart";
 import { OrderSummary } from "./OrderSummary";
 import { AccountStep } from "./AccountStep";
+import { EkontOfficePicker } from "./EkontOfficePicker";
 import { createOrder, deliveryCost, newOrderId, saveLastOrder } from "@/lib/orders";
 import { createClient, isSupabaseConfiguredClient } from "@/lib/supabase/client";
 import { useUser } from "@/components/auth/AuthProvider";
 import { cleanPhone, sanitizeText, PHONE_RE, PHONE_INPUT_RE, EMAIL_RE, POSTCODE_RE } from "@/lib/validation";
 import { TextField } from "@/components/ui/TextField";
-import type { DeliveryAddress } from "@/lib/types";
+import type { DeliveryAddress, DeliveryMethod, EkontOffice } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type Field =
@@ -47,7 +48,7 @@ const EMPTY: Values = {
   note: "",
 };
 
-function validate(v: Values): Partial<Record<Field, string>> {
+function validate(v: Values, method: DeliveryMethod): Partial<Record<Field, string>> {
   const e: Partial<Record<Field, string>> = {};
   if (!v.first_name.trim()) e.first_name = "Въведете име";
   if (!v.last_name.trim()) e.last_name = "Въведете фамилия";
@@ -55,10 +56,13 @@ function validate(v: Values): Partial<Record<Field, string>> {
   else if (!PHONE_INPUT_RE.test(v.phone.trim())) e.phone = "Невалиден номер (напр. 0888123456)";
   else if (!PHONE_RE.test(cleanPhone(v.phone))) e.phone = "Невалиден номер (напр. 0888123456)";
   if (v.email.trim() && !EMAIL_RE.test(v.email.trim())) e.email = "Невалиден имейл адрес";
-  if (!v.address.trim()) e.address = "Въведете адрес";
-  if (!v.city.trim()) e.city = "Въведете град";
-  if (!v.postcode.trim()) e.postcode = "Въведете пощенски код";
-  else if (!POSTCODE_RE.test(v.postcode.trim())) e.postcode = "Пощенският код е 4 цифри";
+  // Office delivery takes its address/city/postcode from the selected office.
+  if (method === "address") {
+    if (!v.address.trim()) e.address = "Въведете адрес";
+    if (!v.city.trim()) e.city = "Въведете град";
+    if (!v.postcode.trim()) e.postcode = "Въведете пощенски код";
+    else if (!POSTCODE_RE.test(v.postcode.trim())) e.postcode = "Пощенският код е 4 цифри";
+  }
   return e;
 }
 
@@ -79,7 +83,13 @@ export function CheckoutForm() {
   const [guest, setGuest] = useState(false);
   const showForm = Boolean(user) || guest;
 
-  const errors = validate(values);
+  // Delivery method: courier to a street address, or pickup at an Econt office.
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("address");
+  const [office, setOffice] = useState<EkontOffice | null>(null);
+
+  const errors = validate(values, deliveryMethod);
+  const officeError =
+    deliveryMethod === "econt_office" && !office ? "Изберете офис на Еконт" : undefined;
   const errShown = (f: Field) => (touched[f] || attempted ? errors[f] : undefined);
 
   const delivery = deliveryCost(subtotal);
@@ -125,9 +135,10 @@ export function CheckoutForm() {
     setAttempted(true);
     setSubmitError(null);
 
-    if (Object.keys(errors).length > 0) {
+    if (Object.keys(errors).length > 0 || officeError) {
       const first = FIELD_ORDER.find((f) => errors[f]);
       if (first) document.getElementById(`f-${first}`)?.focus();
+      else if (officeError) document.getElementById("f-econt-office")?.focus();
       return;
     }
     if (items.length === 0) return;
@@ -136,15 +147,22 @@ export function CheckoutForm() {
     const id = newOrderId();
     // Sanitize every string field — trim + strip HTML tags — before persisting,
     // so nothing user-supplied can be stored and later rendered as markup.
+    // Office deliveries compose address/city/postcode from the selected office,
+    // so every existing consumer (admin, emails, confirmation) keeps working.
+    const toOffice = deliveryMethod === "econt_office" && office;
     const delivery_address: DeliveryAddress = {
       first_name: sanitizeText(values.first_name),
       last_name: sanitizeText(values.last_name),
       phone: cleanPhone(values.phone),
       email: sanitizeText(values.email) || undefined,
-      address: sanitizeText(values.address),
-      city: sanitizeText(values.city),
-      postcode: sanitizeText(values.postcode),
+      address: toOffice
+        ? `${office.is_aps ? "Еконтомат" : "Офис на Еконт"} ${office.name} — ${office.address}`
+        : sanitizeText(values.address),
+      city: toOffice ? office.city : sanitizeText(values.city),
+      postcode: toOffice ? office.post_code : sanitizeText(values.postcode),
       note: sanitizeText(values.note) || undefined,
+      delivery_method: deliveryMethod,
+      econt_office: toOffice ? office : undefined,
     };
 
     try {
@@ -210,23 +228,68 @@ export function CheckoutForm() {
             <TextField id="f-last_name" label="Фамилия" required value={values.last_name} onChange={set("last_name")} onBlur={blur("last_name")} error={errShown("last_name")} autoComplete="family-name" />
             <TextField id="f-phone" label="Телефон" required type="tel" placeholder="0888 123 456" value={values.phone} onChange={set("phone")} onBlur={blur("phone")} error={errShown("phone")} autoComplete="tel" />
             <TextField id="f-email" label="Имейл (по избор)" type="email" placeholder="за потвърждение" value={values.email} onChange={set("email")} onBlur={blur("email")} error={errShown("email")} autoComplete="email" />
-            <div className="sm:col-span-2">
-              <TextField id="f-address" label="Адрес" required placeholder="ул. / бул., №, бл., ап." value={values.address} onChange={set("address")} onBlur={blur("address")} error={errShown("address")} autoComplete="street-address" />
+          </div>
+
+          {/* delivery method — courier to an address, or an Econt office */}
+          <div className="mt-6 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Начин на доставка">
+            {(
+              [
+                { method: "address", icon: Home, title: "До адрес", hint: "Куриер до вашата врата" },
+                { method: "econt_office", icon: MapPin, title: "До офис на Еконт", hint: "Вземате пратката от офис" },
+              ] as const
+            ).map(({ method, icon: Icon, title, hint }) => (
+              <button
+                key={method}
+                type="button"
+                role="radio"
+                aria-checked={deliveryMethod === method}
+                onClick={() => setDeliveryMethod(method)}
+                className={cn(
+                  "flex items-start gap-3 border bg-paper p-4 text-left transition-colors",
+                  deliveryMethod === method ? "border-ink" : "border-hairline hover:border-ash",
+                )}
+              >
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-ink">
+                  {deliveryMethod === method && <span className="h-2 w-2 rounded-full bg-ink" />}
+                </span>
+                <Icon className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.4} />
+                <span>
+                  <span className="block text-sm font-medium">{title}</span>
+                  <span className="mt-1 block text-[0.78rem] text-ash">{hint}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {deliveryMethod === "address" ? (
+            <div className="mt-5 grid gap-5 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <TextField id="f-address" label="Адрес" required placeholder="ул. / бул., №, бл., ап." value={values.address} onChange={set("address")} onBlur={blur("address")} error={errShown("address")} autoComplete="street-address" />
+              </div>
+              <TextField id="f-city" label="Град" required value={values.city} onChange={set("city")} onBlur={blur("city")} error={errShown("city")} autoComplete="address-level2" />
+              <TextField id="f-postcode" label="Пощенски код" required inputMode="numeric" maxLength={4} placeholder="1000" value={values.postcode} onChange={set("postcode")} onBlur={blur("postcode")} error={errShown("postcode")} autoComplete="postal-code" />
             </div>
-            <TextField id="f-city" label="Град" required value={values.city} onChange={set("city")} onBlur={blur("city")} error={errShown("city")} autoComplete="address-level2" />
-            <TextField id="f-postcode" label="Пощенски код" required inputMode="numeric" maxLength={4} placeholder="1000" value={values.postcode} onChange={set("postcode")} onBlur={blur("postcode")} error={errShown("postcode")} autoComplete="postal-code" />
-            <div className="sm:col-span-2">
-              <label htmlFor="f-note" className="block text-[0.74rem] uppercase tracking-widest2 text-ash">
-                Бележка към поръчката (по избор)
-              </label>
-              <textarea
-                id="f-note"
-                rows={3}
-                value={values.note}
-                onChange={set("note")}
-                className="mt-2 w-full resize-none border border-hairline bg-paper px-3.5 py-3 text-sm focus:border-ink focus:outline-none"
+          ) : (
+            <div className="mt-5">
+              <EkontOfficePicker
+                value={office}
+                onChange={setOffice}
+                error={attempted ? officeError : undefined}
               />
             </div>
+          )}
+
+          <div className="mt-5">
+            <label htmlFor="f-note" className="block text-[0.74rem] uppercase tracking-widest2 text-ash">
+              Бележка към поръчката (по избор)
+            </label>
+            <textarea
+              id="f-note"
+              rows={3}
+              value={values.note}
+              onChange={set("note")}
+              className="mt-2 w-full resize-none border border-hairline bg-paper px-3.5 py-3 text-sm focus:border-ink focus:outline-none"
+            />
           </div>
         </fieldset>
 

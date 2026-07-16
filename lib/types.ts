@@ -41,6 +41,23 @@ export interface CartItem {
   quantity: number;
 }
 
+/** How the order should be delivered: to a street address or to an Econt office. */
+export type DeliveryMethod = "address" | "econt_office";
+
+/** An Econt office / Econtomat, trimmed from the public nomenclature API. */
+export interface EkontOffice {
+  id: number;
+  /** Econt's own office code, e.g. "1051" — what couriers key waybills on. */
+  code: string;
+  name: string;
+  city: string;
+  post_code: string;
+  /** Full street address of the office. */
+  address: string;
+  /** True for Econtomat automatic parcel lockers. */
+  is_aps?: boolean;
+}
+
 export interface DeliveryAddress {
   first_name: string;
   last_name: string;
@@ -50,6 +67,10 @@ export interface DeliveryAddress {
   city: string;
   postcode: string;
   note?: string;
+  /** Absent on orders that predate office delivery (implies "address"). */
+  delivery_method?: DeliveryMethod;
+  /** Set when delivery_method is "econt_office". */
+  econt_office?: EkontOffice;
 }
 
 export interface Order {

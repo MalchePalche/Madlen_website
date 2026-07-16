@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { deliveryCost } from "@/lib/orders";
-import type { CartItem, DeliveryAddress } from "@/lib/types";
+import type { CartItem, DeliveryAddress, EkontOffice } from "@/lib/types";
 
 export const runtime = "nodejs";
 
@@ -87,6 +87,27 @@ export async function POST(req: Request) {
 
   // ---- sanitise + validate the delivery address ------------------------------
   const raw = body.delivery_address;
+
+  // Econt office delivery: re-clean the office fields like any other client
+  // input (the composed address/city/postcode strings are cleaned below).
+  const toOffice = raw.delivery_method === "econt_office";
+  let econtOffice: EkontOffice | undefined;
+  if (toOffice) {
+    const o = raw.econt_office;
+    econtOffice = o && {
+      id: Number(o.id) || 0,
+      code: clean(o.code),
+      name: clean(o.name),
+      city: clean(o.city),
+      post_code: clean(o.post_code),
+      address: clean(o.address),
+      is_aps: o.is_aps === true || undefined,
+    };
+    if (!econtOffice?.name || !econtOffice.city) {
+      return NextResponse.json({ error: "Невалиден офис на Еконт." }, { status: 400 });
+    }
+  }
+
   const address: DeliveryAddress = {
     first_name: clean(raw.first_name),
     last_name: clean(raw.last_name),
@@ -96,6 +117,8 @@ export async function POST(req: Request) {
     city: clean(raw.city),
     postcode: clean(raw.postcode),
     note: clean(raw.note) || undefined,
+    delivery_method: toOffice ? "econt_office" : "address",
+    econt_office: econtOffice,
   };
 
   const missing =
