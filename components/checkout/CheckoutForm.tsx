@@ -7,6 +7,7 @@ import { ShoppingBag, Banknote, Loader2, AlertCircle, Home, MapPin } from "lucid
 import { useCart, selectSubtotal } from "@/store/cart";
 import { OrderSummary } from "./OrderSummary";
 import { AccountStep } from "./AccountStep";
+import { CheckoutSteps } from "./CheckoutSteps";
 import { EkontOfficePicker } from "./EkontOfficePicker";
 import { createOrder, deliveryCost, newOrderId, saveLastOrder } from "@/lib/orders";
 import { createClient, isSupabaseConfiguredClient } from "@/lib/supabase/client";
@@ -212,11 +213,23 @@ export function CheckoutForm() {
   // Guests/visitors choose how to proceed before seeing the form; signing in
   // here means the order is saved against the real user_id (not null).
   if (!showForm) {
-    return <AccountStep onGuest={() => setGuest(true)} />;
+    return (
+      <div>
+        <CheckoutSteps current={2} className="mb-10" />
+        <AccountStep onGuest={() => setGuest(true)} />
+      </div>
+    );
   }
+
+  // The cart is behind us; "Плащане" lights up once the details are all valid.
+  const infoComplete = Object.keys(errors).length === 0 && !officeError;
 
   return (
     <form onSubmit={onSubmit} noValidate className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+      {/* progress stepper — full-width row above both columns */}
+      <div className="order-first lg:col-span-12">
+        <CheckoutSteps current={infoComplete ? 3 : 2} />
+      </div>
       {/* fields */}
       <div className="order-2 space-y-10 lg:order-1 lg:col-span-7">
         <fieldset>

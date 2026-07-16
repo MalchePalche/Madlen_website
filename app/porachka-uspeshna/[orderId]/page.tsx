@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Phone } from "lucide-react";
 import { loadLastOrder, type StoredOrder } from "@/lib/orders";
+import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { GuestSavePrompt } from "@/components/checkout/GuestSavePrompt";
 
@@ -20,6 +21,7 @@ export default function OrderSuccessPage({ params }: { params: { orderId: string
 
   return (
     <div className="gutter mx-auto max-w-2xl py-16 text-center lg:py-24">
+      <CheckoutSteps current={3} done className="mb-12 justify-center" />
       <CheckCircle2 className="mx-auto h-14 w-14 text-ink" strokeWidth={1} />
       <p className="eyebrow mt-6">Поръчката е приета</p>
       <h1 className="mt-3 font-display text-4xl lg:text-5xl">Благодарим за поръчката!</h1>
