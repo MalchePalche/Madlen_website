@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/home/Hero";
 import { NewArrivals } from "@/components/home/NewArrivals";
-import { Lookbook } from "@/components/home/Lookbook";
+// Lookbook is temporarily hidden per client request (2026-07) — see below.
+// import { Lookbook } from "@/components/home/Lookbook";
 import { CategoryPills } from "@/components/home/CategoryPills";
 import { getNewArrivals } from "@/lib/products";
 
@@ -35,7 +36,9 @@ export default async function HomePage() {
     <>
       <Hero />
       <NewArrivals products={newArrivals} />
-      <Lookbook />
+      {/* Lookbook hidden per client request (2026-07). Restore by uncommenting
+          this and the import above — component + data are untouched. */}
+      {/* <Lookbook /> */}
       <CategoryPills />
     </>
   );
