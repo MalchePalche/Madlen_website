@@ -27,13 +27,20 @@ interface EcontOfficeRaw {
   address: {
     fullAddress: string | null;
     city: { name: string; nameEn: string | null; postCode: string | null } | null;
+    location: { latitude: number | null; longitude: number | null } | null;
   } | null;
 }
 
-/** Trimmed office DTO sent to the browser; en fields let Latin-script queries match. */
+/**
+ * Trimmed office DTO sent to the browser; en fields let Latin-script queries
+ * match, lat/lng power the map pins. Both are search/display-only — they are
+ * stripped before an office is stored on an order.
+ */
 export interface EkontOfficeDTO extends EkontOffice {
   name_en: string;
   city_en: string;
+  lat?: number;
+  lng?: number;
 }
 
 // Module-level cache: survives across requests within one server process and
@@ -41,9 +48,16 @@ export interface EkontOfficeDTO extends EkontOffice {
 // the order routes — per-instance, resets on cold start).
 let cache: { offices: EkontOfficeDTO[]; fetchedAt: number } | null = null;
 
+/** Round a coordinate to 5 decimals (~1 m) — full floats just bloat the payload. */
+function roundCoord(v: number): number {
+  return Math.round(v * 1e5) / 1e5;
+}
+
 function toDTO(raw: EcontOfficeRaw): EkontOfficeDTO | null {
   const city = raw.address?.city;
   if (!city?.name || !raw.name) return null;
+  const loc = raw.address?.location;
+  const hasCoords = typeof loc?.latitude === "number" && typeof loc?.longitude === "number";
   return {
     id: raw.id,
     code: String(raw.code ?? ""),
@@ -54,6 +68,8 @@ function toDTO(raw: EcontOfficeRaw): EkontOfficeDTO | null {
     post_code: city.postCode ?? "",
     address: (raw.address?.fullAddress ?? "").trim(),
     is_aps: raw.isAPS || undefined,
+    lat: hasCoords ? roundCoord(loc!.latitude!) : undefined,
+    lng: hasCoords ? roundCoord(loc!.longitude!) : undefined,
   };
 }
 

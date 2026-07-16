@@ -1,14 +1,30 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { Loader2, MapPin, Search, X } from "lucide-react";
 import type { EkontOffice } from "@/lib/types";
+import type { MapOffice } from "./EkontOfficeMap";
 import { cn } from "@/lib/utils";
 
-/** Office DTO from /api/econt-offices — includes Latin fields for search only. */
+// Leaflet reads `window` at import time — load the map client-side only, and
+// only when the picker actually renders (keeps it out of the checkout bundle).
+const EkontOfficeMap = dynamic(() => import("./EkontOfficeMap"), {
+  ssr: false,
+  loading: () => (
+    <div aria-hidden className="h-56 w-full animate-pulse border border-hairline bg-mist sm:h-72" />
+  ),
+});
+
+/**
+ * Office DTO from /api/econt-offices — Latin fields are for search only,
+ * lat/lng only feed the map; all are stripped before storing on the order.
+ */
 interface OfficeDTO extends EkontOffice {
   name_en: string;
   city_en: string;
+  lat?: number;
+  lng?: number;
 }
 
 const MAX_RESULTS = 60;
@@ -73,6 +89,17 @@ export function EkontOfficePicker({ value, onChange, error }: EkontOfficePickerP
     return matches;
   }, [offices, query]);
 
+  // Sofia offices with coordinates — pinned on the map as a shortcut for the
+  // capital; the search list below still covers the whole country.
+  const sofiaOffices = useMemo(
+    () =>
+      (offices ?? []).filter(
+        (o): o is OfficeDTO & MapOffice =>
+          o.city === "София" && o.lat !== undefined && o.lng !== undefined,
+      ),
+    [offices],
+  );
+
   // Keep the highlighted row valid and visible as the result set changes.
   useEffect(() => setHighlight(0), [query]);
   useEffect(() => {
@@ -82,8 +109,8 @@ export function EkontOfficePicker({ value, onChange, error }: EkontOfficePickerP
   }, [highlight]);
 
   const select = (o: OfficeDTO) => {
-    // Strip the search-only Latin fields before storing on the order.
-    const { name_en: _n, city_en: _c, ...office } = o;
+    // Strip the search/map-only fields before storing on the order.
+    const { name_en: _n, city_en: _c, lat: _lat, lng: _lng, ...office } = o;
     onChange(office);
     setOpen(false);
     setQuery("");
@@ -162,7 +189,26 @@ export function EkontOfficePicker({ value, onChange, error }: EkontOfficePickerP
       >
         Офис на Еконт<span aria-hidden> *</span>
       </label>
-      <div className="relative mt-2">
+
+      {/* Sofia map — pins select an office just like the list below */}
+      {sofiaOffices.length > 0 && (
+        <div className="mt-2">
+          <EkontOfficeMap
+            offices={sofiaOffices}
+            onSelect={(o) => {
+              // Look the DTO up by id — the map hands back its own type.
+              const dto = offices?.find((x) => x.id === o.id);
+              if (dto) select(dto);
+            }}
+          />
+          <p className="mt-1.5 text-[0.7rem] text-ash">
+            На картата: офиси в София — докоснете пин, за да изберете. За
+            останалите населени места използвайте търсачката по-долу.
+          </p>
+        </div>
+      )}
+
+      <div className="relative mt-3">
         <Search
           className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ash"
           strokeWidth={1.6}
