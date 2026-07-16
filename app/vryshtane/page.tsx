@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ContentPage, Section, Bullets } from "@/components/content/ContentPage";
 import { BRAND } from "@/lib/config";
 
@@ -53,7 +52,7 @@ export default function ReturnsPage() {
               и посочете номера на поръчката.
             </>,
             "Опаковайте продукта заедно с касовата бележка / фактурата.",
-            "Изпратете пратката с куриер до нашия адрес. Транспортните разходи за връщане са за сметка на клиента.",
+            "Изпратете пратката с куриер Еконт до наш офис на Еконт. Транспортните разходи за връщане са за сметка на клиента.",
             "След като получим и проверим продукта, ще обработим връщането.",
           ].map((step, i) => (
             <li key={i} className="flex gap-3">
@@ -80,14 +79,16 @@ export default function ReturnsPage() {
         </p>
       </Section>
 
-      <Section title="Повредени или сгрешени продукти">
+      <Section title="Връщане чрез Еконт">
         <p>
-          Ако сте получили дефектен или сгрешен артикул, се свържете с нас до 48 часа от
-          получаването — ще поемем разходите за връщане и ще изпратим правилния продукт. Вижте и{" "}
-          <Link href="/dostavka" className="text-ink underline underline-offset-4">
-            условията за доставка
-          </Link>
-          .
+          Връщанията се обработват чрез куриер{" "}
+          <strong className="font-medium text-ink">Еконт</strong>. Изпратете продукта до наш
+          офис на Еконт, като посочите номера на поръчката.
+        </p>
+        <p>
+          Ако сте получили сгрешен или дефектен артикул, изпратете пратката с{" "}
+          <strong className="font-medium text-ink">наложен платеж обратно</strong> — така
+          разходите за обратната доставка са за наша сметка.
         </p>
       </Section>
     </ContentPage>
