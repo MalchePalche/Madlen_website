@@ -10,6 +10,16 @@ import { formatEUR, cn } from "@/lib/utils";
 import { Accordion } from "@/components/ui/Accordion";
 import { isInWishlist, toggleWishlist, WISHLIST_EVENT } from "@/lib/wishlist";
 
+/** The `days`-th business day after `from` (weekends skipped). */
+function addBusinessDays(from: Date, days: number): Date {
+  const d = new Date(from);
+  while (days > 0) {
+    d.setDate(d.getDate() + 1);
+    if (d.getDay() !== 0 && d.getDay() !== 6) days -= 1;
+  }
+  return d;
+}
+
 export function BuyPanel({ product }: { product: Product }) {
   const addItem = useCart((s) => s.addItem);
 
@@ -68,6 +78,21 @@ export function BuyPanel({ product }: { product: Product }) {
   }, [product.slug]);
 
   const categoryLabel = CATEGORIES.find((c) => c.slug === product.category)?.label ?? product.category;
+
+  // Estimated delivery window: 1–3 business days from today (the site-wide
+  // shipping promise). Computed after mount so pre-rendered HTML never bakes
+  // in a stale date and hydration stays consistent.
+  const [deliveryEstimate, setDeliveryEstimate] = useState<string | null>(null);
+  useEffect(() => {
+    const fmt = new Intl.DateTimeFormat("bg-BG", { day: "numeric", month: "long" });
+    const from = addBusinessDays(new Date(), 1);
+    const to = addBusinessDays(new Date(), 3);
+    setDeliveryEstimate(
+      from.getMonth() === to.getMonth()
+        ? `${from.getDate()}–${fmt.format(to)}`
+        : `${fmt.format(from)} – ${fmt.format(to)}`,
+    );
+  }, []);
 
   const handleAdd = (opts?: { scrollToSizeOnError?: boolean }) => {
     if (soldOut) return;
@@ -284,7 +309,16 @@ export function BuyPanel({ product }: { product: Product }) {
           <Banknote className="h-4 w-4 text-ash" strokeWidth={1.5} /> Плащане при доставка (наложен платеж)
         </li>
         <li className="flex items-center gap-3">
-          <Truck className="h-4 w-4 text-ash" strokeWidth={1.5} /> Доставка 1–3 работни дни
+          <Truck className="h-4 w-4 shrink-0 text-ash" strokeWidth={1.5} />
+          <span>
+            Доставка 1–3 работни дни
+            {deliveryEstimate && (
+              <>
+                {" · очаквана "}
+                <span className="font-medium text-ink">{deliveryEstimate}</span>
+              </>
+            )}
+          </span>
         </li>
         <li className="flex items-center gap-3">
           <RotateCcw className="h-4 w-4 text-ash" strokeWidth={1.5} /> Връщане до 30 дни
