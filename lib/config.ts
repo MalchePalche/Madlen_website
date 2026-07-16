@@ -44,8 +44,11 @@ export const GENDER_OPTIONS = [
   { value: "unisex", label: "Унисекс" },
 ] as const;
 
+/** Single-size products (accessories etc.) carry this instead of a size run. */
+export const ONE_SIZE = "One size";
+
 /** Sizes offered across the catalogue (admin product form). */
-export const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL"] as const;
+export const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", ONE_SIZE] as const;
 
 /** Bulgarian label for a category slug, falling back to the raw slug. */
 export function categoryLabel(slug: string): string {

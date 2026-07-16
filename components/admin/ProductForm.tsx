@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, AlertCircle, X, Plus, Upload, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { TextField } from "@/components/ui/TextField";
-import { CATEGORIES, GENDER_OPTIONS, SIZE_OPTIONS } from "@/lib/config";
+import { CATEGORIES, GENDER_OPTIONS, ONE_SIZE, SIZE_OPTIONS } from "@/lib/config";
 import { productSlug } from "@/lib/slug";
 import { transliterate } from "@/lib/slug";
 import { cn } from "@/lib/utils";
@@ -56,9 +56,16 @@ export function ProductForm({ product }: { product?: Product }) {
   const imagesError = attempted && images.length === 0 ? "Добавете поне една снимка" : undefined;
 
   const toggleSize = (s: string) => {
-    setSizes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
-    // Removing a size must also clear it from the out-of-stock subset.
-    if (sizes.includes(s)) setOosSizes((prev) => prev.filter((x) => x !== s));
+    // "One size" and a regular size run are mutually exclusive — picking either
+    // side clears the other.
+    const next = sizes.includes(s)
+      ? sizes.filter((x) => x !== s)
+      : s === ONE_SIZE
+        ? [ONE_SIZE]
+        : [...sizes.filter((x) => x !== ONE_SIZE), s];
+    setSizes(next);
+    // The out-of-stock set must stay a subset of the offered sizes.
+    setOosSizes((prev) => prev.filter((x) => next.includes(x)));
   };
 
   const toggleOos = (s: string) =>
@@ -263,6 +270,7 @@ export function ProductForm({ product }: { product?: Product }) {
               onClick={() => toggleSize(s)}
               className={cn(
                 "flex min-h-[44px] items-center justify-center border px-2 text-sm transition-colors sm:min-w-[3.25rem] sm:px-4",
+                s === ONE_SIZE && "col-span-2 whitespace-nowrap",
                 sizes.includes(s)
                   ? "border-noir bg-noir text-paper"
                   : "border-hairline hover:border-ink",
@@ -290,6 +298,7 @@ export function ProductForm({ product }: { product?: Product }) {
                   onClick={() => toggleOos(s)}
                   className={cn(
                     "flex min-h-[44px] items-center justify-center border px-2 text-sm transition-colors sm:min-w-[3.25rem] sm:px-4",
+                    s === ONE_SIZE && "col-span-2 whitespace-nowrap",
                     oosSizes.includes(s)
                       ? "border-noir bg-noir text-paper line-through"
                       : "border-hairline hover:border-ink",

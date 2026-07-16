@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Check, Truck, RotateCcw, Banknote, Lock, Heart } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCart } from "@/store/cart";
-import { BRAND, CATEGORIES } from "@/lib/config";
+import { BRAND, CATEGORIES, ONE_SIZE } from "@/lib/config";
 import { formatEUR, cn } from "@/lib/utils";
 import { Accordion } from "@/components/ui/Accordion";
 import { isInWishlist, toggleWishlist, WISHLIST_EVENT } from "@/lib/wishlist";
@@ -22,8 +22,14 @@ export function BuyPanel({ product }: { product: Product }) {
     ? Math.round((1 - product.price_bgn / product.compare_at_bgn!) * 100)
     : 0;
 
+  // "One size" products have nothing to choose — pre-select it (unless sold out)
+  // so add-to-cart works without a size prompt.
+  const oneSizeOnly = product.sizes.length === 1 && product.sizes[0] === ONE_SIZE;
+
   const [color, setColor] = useState(product.colors[0]?.name ?? "");
-  const [size, setSize] = useState<string | null>(null);
+  const [size, setSize] = useState<string | null>(
+    oneSizeOnly && !oosSizes.includes(ONE_SIZE) ? ONE_SIZE : null,
+  );
   const [error, setError] = useState(false);
   const [added, setAdded] = useState(false);
 
@@ -185,9 +191,12 @@ export function BuyPanel({ product }: { product: Product }) {
         <div ref={sizeSectionRef} className="mt-7">
           <div className="flex items-center justify-between">
             <p className="text-[0.78rem] uppercase tracking-widest2 text-ash">Размер</p>
-            <Link href="/razmerna-tablica" className="text-[0.74rem] text-ash underline-offset-4 hover:text-ink hover:underline">
-              Таблица с размери
-            </Link>
+            {/* the size chart is meaningless for one-size products */}
+            {!oneSizeOnly && (
+              <Link href="/razmerna-tablica" className="text-[0.74rem] text-ash underline-offset-4 hover:text-ink hover:underline">
+                Таблица с размери
+              </Link>
+            )}
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             {product.sizes.map((s) => {
