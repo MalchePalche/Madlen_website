@@ -2,11 +2,26 @@ import Link from "next/link";
 import Image from "next/image";
 import { Instagram, Facebook } from "lucide-react";
 import { BRAND, FOOTER_LINKS } from "@/lib/config";
+import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 
 export function Footer() {
   return (
     <footer className="mt-24 border-t border-hairline bg-mist">
       <div className="gutter mx-auto max-w-edge py-16">
+        {/* newsletter */}
+        <div className="mb-14 grid gap-6 border-b border-hairline pb-14 lg:grid-cols-2 lg:items-center">
+          <div>
+            <h2 className="eyebrow">Бюлетин</h2>
+            <p className="mt-3 font-display text-2xl lg:text-3xl">
+              Абонирайте се за новини
+            </p>
+            <p className="mt-2 max-w-md text-sm text-ash">
+              Нови колекции и специални предложения — направо в пощата ви.
+            </p>
+          </div>
+          <NewsletterSignup source="footer" className="lg:justify-self-end lg:w-full lg:max-w-md" />
+        </div>
+
         <div className="grid gap-12 lg:grid-cols-[1.5fr_3fr]">
           {/* brand block */}
           <div>
