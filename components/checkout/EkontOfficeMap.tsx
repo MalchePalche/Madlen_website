@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster";
+import "leaflet.markercluster/dist/MarkerCluster.css";
 import type { EkontOffice } from "@/lib/types";
 
 /** An office that can be pinned — coordinates are guaranteed present. */
@@ -18,9 +20,50 @@ interface EkontOfficeMapProps {
 
 const SOFIA_CENTER: L.LatLngTuple = [42.6977, 23.3219];
 
-// Site palette (globals.css): --ink-rgb / --paper-rgb.
-const INK = "#0d0d0d";
-const PAPER = "#faf9f7";
+// Site palette (globals.css): --ink-rgb / --paper-rgb / --noir-rgb.
+const NOIR = "#000000"; // pin fill — the site's CTA/accent colour
+const PAPER = "#faf9f7"; // pin outline + inner dot, so it reads against the tiles
+
+// Teardrop pin (Google-Maps-style): a circular head tapering to a point at
+// the bottom. iconAnchor sits at that point so the pin "stands" on its coords.
+const PIN_WIDTH = 26;
+const PIN_HEIGHT = 36;
+const pinIcon = L.divIcon({
+  className: "", // no leaflet-div-icon default box-shadow/background
+  html: `
+    <svg width="${PIN_WIDTH}" height="${PIN_HEIGHT}" viewBox="0 0 26 36" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M13 0C5.82 0 0 5.82 0 13c0 9.75 13 23 13 23s13-13.25 13-23C26 5.82 20.18 0 13 0z"
+        fill="${NOIR}" stroke="${PAPER}" stroke-width="1.5"
+      />
+      <circle cx="13" cy="13" r="4.5" fill="${PAPER}" />
+    </svg>
+  `,
+  iconSize: [PIN_WIDTH, PIN_HEIGHT],
+  iconAnchor: [PIN_WIDTH / 2, PIN_HEIGHT],
+  tooltipAnchor: [0, -PIN_HEIGHT + 4],
+});
+
+/** Custom cluster badge — a plain ink circle + count, matching the pin colours
+ *  instead of the plugin's default green/yellow/orange gradient. */
+function clusterIcon(cluster: L.MarkerCluster): L.DivIcon {
+  const count = cluster.getChildCount();
+  const size = count < 10 ? 34 : count < 100 ? 40 : 46;
+  return L.divIcon({
+    className: "",
+    html: `
+      <div style="
+        display:flex;align-items:center;justify-content:center;
+        width:${size}px;height:${size}px;border-radius:9999px;
+        background:${NOIR};color:${PAPER};
+        font:600 ${count < 100 ? 13 : 12}px/1 inherit;
+        border:2px solid ${PAPER};
+        box-shadow:0 1px 4px rgba(0,0,0,.35);
+      ">${count}</div>
+    `,
+    iconSize: [size, size],
+  });
+}
 
 /**
  * Leaflet map of Econt offices (Sofia pins) for the checkout picker. Loaded
@@ -46,31 +89,29 @@ export default function EkontOfficeMap({ offices, onSelect }: EkontOfficeMapProp
       scrollWheelZoom: false,
       attributionControl: true,
     });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
       attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19,
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: "abcd",
+      maxZoom: 20,
     }).addTo(map);
     mapRef.current = map;
 
-    // One canvas renderer for all pins — far cheaper than 130+ DOM markers.
-    const renderer = L.canvas({ padding: 0.4 });
+    // Clusters dense areas (central Sofia) into a number badge; spiderfies
+    // the last few once you're zoomed all the way in on one spot.
+    const clusterGroup = L.markerClusterGroup({
+      maxClusterRadius: 50,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      iconCreateFunction: clusterIcon,
+    });
     for (const office of offices) {
-      L.circleMarker([office.lat, office.lng], {
-        renderer,
-        radius: 7,
-        color: PAPER, // outline, so pins read against the tiles
-        weight: 2,
-        fillColor: INK,
-        fillOpacity: 0.9,
-      })
-        .bindTooltip(
-          `${office.is_aps ? "Еконтомат " : ""}${office.name}`,
-          { direction: "top", offset: [0, -8] },
-        )
+      L.marker([office.lat, office.lng], { icon: pinIcon })
+        .bindTooltip(`${office.is_aps ? "Еконтомат " : ""}${office.name}`, { direction: "top" })
         .on("click", () => onSelectRef.current(office))
-        .addTo(map);
+        .addTo(clusterGroup);
     }
+    clusterGroup.addTo(map);
 
     return () => {
       map.remove();

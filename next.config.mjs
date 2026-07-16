@@ -22,7 +22,7 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://orxegahrhbwosbhfvvtc.supabase.co https://scontent*.cdninstagram.com https://images.unsplash.com",
+              "img-src 'self' data: blob: https://orxegahrhbwosbhfvvtc.supabase.co https://scontent*.cdninstagram.com https://images.unsplash.com https://*.basemaps.cartocdn.com",
               "media-src 'self' blob:",
               "font-src 'self'",
               "connect-src 'self' https://orxegahrhbwosbhfvvtc.supabase.co wss://orxegahrhbwosbhfvvtc.supabase.co",
