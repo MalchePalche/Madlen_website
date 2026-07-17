@@ -32,9 +32,10 @@ function StatCard({
 export default async function AdminDashboard() {
   const supabase = createClient();
 
-  const [{ data: orders }, { count: productCount }] = await Promise.all([
+  const [{ data: orders }, { count: productCount }, { count: pendingReviews }] = await Promise.all([
     supabase.from("orders").select("total_bgn, status"),
     supabase.from("products").select("*", { count: "exact", head: true }),
+    supabase.from("reviews").select("*", { count: "exact", head: true }).eq("is_approved", false),
   ]);
 
   const rows = (orders ?? []) as { total_bgn: number; status: OrderStatus }[];
@@ -86,6 +87,30 @@ export default async function AdminDashboard() {
             <div>
               <p className="text-sm font-semibold">Поръчки</p>
               <p className="mt-1 text-[0.8rem] text-ash">Преглед на всички поръчки</p>
+            </div>
+            <ArrowRight
+              className="h-5 w-5 text-ash transition-transform group-hover:translate-x-1"
+              strokeWidth={1.6}
+            />
+          </Link>
+          <Link
+            href="/admin/otzivi"
+            className="group flex items-center justify-between border border-hairline bg-paper p-6 transition-colors hover:bg-mist"
+          >
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold">Отзиви</p>
+                {(pendingReviews ?? 0) > 0 && (
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#8a2b2b] px-1.5 text-[0.62rem] font-semibold tabular-nums text-paper">
+                    {(pendingReviews ?? 0) > 99 ? "99+" : pendingReviews}
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-[0.8rem] text-ash">
+                {pendingReviews
+                  ? `${pendingReviews} ${pendingReviews === 1 ? "отзив чака" : "отзива чакат"} одобрение`
+                  : "Няма чакащи отзиви"}
+              </p>
             </div>
             <ArrowRight
               className="h-5 w-5 text-ash transition-transform group-hover:translate-x-1"

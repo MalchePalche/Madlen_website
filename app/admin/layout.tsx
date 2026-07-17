@@ -37,8 +37,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .maybeSingle();
   if (!profile?.is_admin) redirect("/");
 
+  // Pending-moderation count for the Отзиви nav badge. Head-only count (no rows
+  // transferred); re-runs on router.refresh() after a review is moderated.
+  const { count: pendingReviews } = await supabase
+    .from("reviews")
+    .select("*", { count: "exact", head: true })
+    .eq("is_approved", false);
+
   return (
-    <AdminShell email={user.email ?? ""}>
+    <AdminShell email={user.email ?? ""} pendingReviews={pendingReviews ?? 0}>
       <AdminSessionGuard />
       {children}
     </AdminShell>

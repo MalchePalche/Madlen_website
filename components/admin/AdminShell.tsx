@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Package,
   ClipboardList,
+  Star,
   ExternalLink,
   LogOut,
 } from "lucide-react";
@@ -18,7 +19,25 @@ const NAV = [
   { href: "/admin", label: "Табло", icon: LayoutDashboard, exact: true },
   { href: "/admin/prodakti", label: "Продукти", icon: Package, exact: false },
   { href: "/admin/poruchki", label: "Поръчки", icon: ClipboardList, exact: false },
+  { href: "/admin/otzivi", label: "Отзиви", icon: Star, exact: false },
 ] as const;
+
+/** Small attention pill for the moderation queue. Red reads on both the paper
+ *  (inactive) and noir (active) nav backgrounds, and caps the count at 99+. */
+function NavBadge({ count, className }: { count: number; className?: string }) {
+  if (count <= 0) return null;
+  return (
+    <span
+      aria-label={`${count} чакащи отзива`}
+      className={cn(
+        "inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#8a2b2b] px-1.5 text-[0.62rem] font-semibold tabular-nums text-paper",
+        className,
+      )}
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
 
 function useActive() {
   const pathname = usePathname();
@@ -28,9 +47,12 @@ function useActive() {
 
 export function AdminShell({
   email,
+  pendingReviews = 0,
   children,
 }: {
   email: string;
+  /** Count of reviews awaiting moderation — shown as a badge on the Отзиви nav item. */
+  pendingReviews?: number;
   children: React.ReactNode;
 }) {
   const isActive = useActive();
@@ -68,8 +90,9 @@ export function AdminShell({
                   : "text-ink hover:bg-mist",
               )}
             >
-              <Icon className="h-4 w-4" strokeWidth={1.6} />
-              {label}
+              <Icon className="h-4 w-4 shrink-0" strokeWidth={1.6} />
+              <span>{label}</span>
+              {href === "/admin/otzivi" && <NavBadge count={pendingReviews} className="ml-auto" />}
             </Link>
           ))}
         </nav>
@@ -125,7 +148,7 @@ export function AdminShell({
       {/* Bottom navigation — mobile, native-app style */}
       <nav
         aria-label="Основна навигация"
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t border-hairline bg-paper/95 backdrop-blur lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-hairline bg-paper/95 backdrop-blur lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         {NAV.map(({ href, label, icon: Icon, exact }) => {
@@ -147,7 +170,15 @@ export function AdminShell({
                   active ? "bg-noir" : "bg-transparent",
                 )}
               />
-              <Icon className="h-[1.35rem] w-[1.35rem]" strokeWidth={active ? 2 : 1.6} />
+              <span className="relative">
+                <Icon className="h-[1.35rem] w-[1.35rem]" strokeWidth={active ? 2 : 1.6} />
+                {href === "/admin/otzivi" && (
+                  <NavBadge
+                    count={pendingReviews}
+                    className="absolute -right-3 -top-1.5 h-4 min-w-4 px-1 text-[0.55rem]"
+                  />
+                )}
+              </span>
               {label}
             </Link>
           );
