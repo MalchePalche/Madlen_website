@@ -69,7 +69,7 @@ signed/accepted Data Processing Agreement (DPA).
 
 - [ ] Accept Supabase DPA in the Supabase dashboard (Settings → Legal)
 - [ ] Accept Resend DPA in the Resend dashboard
-- [ ] Fill in `[ЕИК]` and `[АДРЕС]` in the legal pages
+- [x] Fill in ЕИК and адрес на управление in the legal pages — ТРН ТРЕЙД ЕООД (TRN TRADE EOOD), ЕИК 207812853
 - [ ] Set `[ДАТА]` on both legal pages once finalized
 
 ---

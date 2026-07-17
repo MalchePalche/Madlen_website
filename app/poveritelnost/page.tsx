@@ -33,11 +33,13 @@ export default function PrivacyPage() {
 
       <Section title="1. Администратор на лични данни">
         <p>
-          <strong className="font-medium text-ink">{BRAND.name}</strong>
+          <strong className="font-medium text-ink">ТРН ТРЕЙД ЕООД (TRN TRADE EOOD)</strong>,
+          оператор на онлайн магазин {BRAND.name}
           <br />
-          ЕИК: <Fill>[ЕИК]</Fill>
+          ЕИК: 207812853
           <br />
-          Седалище и адрес на управление: <Fill>[АДРЕС]</Fill>
+          Седалище и адрес на управление: България, гр. София (1680), р-н Красно село, жк. Красно
+          село, кв. Борово, бл. 223, вх. Б, ет. 9, ап. 54
           <br />
           Имейл за контакт:{" "}
           <a href={`mailto:${BRAND.email}`} className="text-ink underline underline-offset-4">
