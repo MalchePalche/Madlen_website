@@ -2,6 +2,15 @@
  * Central brand configuration for Noem Studio.
  * Change BRAND.name here to rebrand the entire site in one place.
  */
+/**
+ * Public base URL of the storefront, used to build absolute links (emails,
+ * sitemap, etc.). Override per environment with NEXT_PUBLIC_SITE_URL; the
+ * production domain is the fallback so links are never relative in emails.
+ */
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL || "https://noem-studio.com"
+).replace(/\/+$/, "");
+
 export const BRAND = {
   name: "Noem Studio",
   tagline: "Българска мода за мъже и жени",

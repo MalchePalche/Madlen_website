@@ -28,6 +28,20 @@ export interface Product {
   description_bg?: string;
   material_bg?: string;
   created_at: string;
+  /** Auto-touched on every update via a DB trigger (see newsletter-digest.sql). */
+  updated_at?: string;
+}
+
+/** A newsletter subscriber row (see supabase/newsletter.sql + newsletter-digest.sql). */
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  subscribed_at: string;
+  source: string;
+  /** NULL while the address is active; set when they unsubscribe. */
+  unsubscribed_at: string | null;
+  /** Unguessable token used in the /otpisvane unsubscribe link. */
+  unsubscribe_token: string;
 }
 
 export interface CartItem {

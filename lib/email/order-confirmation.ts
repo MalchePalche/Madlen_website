@@ -1,5 +1,6 @@
 import { BRAND } from "@/lib/config";
 import { formatEUR } from "@/lib/utils";
+import { PAPER, INK, ASH, LINE, esc } from "./theme";
 import type { CartItem, DeliveryAddress } from "@/lib/types";
 
 export interface OrderEmailData {
@@ -10,20 +11,6 @@ export interface OrderEmailData {
   total_bgn: number;
   delivery_address: DeliveryAddress;
 }
-
-function esc(s: string): string {
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-// Inline-styled palette (email clients ignore <style>/CSS vars)
-const PAPER = "#faf9f7";
-const INK = "#0d0d0d";
-const ASH = "#8a8782";
-const LINE = "#e3e1dc";
 
 /** Build subject + HTML + plain-text for an order confirmation email (Bulgarian). */
 export function renderOrderConfirmationEmail(o: OrderEmailData): {
