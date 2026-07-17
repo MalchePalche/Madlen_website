@@ -13,7 +13,11 @@ export function ProductCard({ product, priority = false }: { product: Product; p
   const addItem = useCart((s) => s.addItem);
   const primary = product.images[0];
   const secondary = product.images[1] ?? product.images[0];
-  const onSale = product.compare_at_bgn && product.compare_at_bgn > product.price_bgn;
+  const onSale = !!product.compare_at_bgn && product.compare_at_bgn > product.price_bgn;
+  // Same discount maths as the PDP BuyPanel so the card badge reads identically.
+  const discount = onSale
+    ? Math.round((1 - product.price_bgn / product.compare_at_bgn!) * 100)
+    : 0;
 
   // Availability: sold out when there's no stock, or every size is flagged out
   // of stock. Quick-add is hidden entirely in that case.
@@ -90,8 +94,8 @@ export function ProductCard({ product, priority = false }: { product: Product; p
               </span>
             )}
             {onSale && (
-              <span className="bg-paper px-2 py-1 text-[0.58rem] uppercase tracking-widest2 text-ink">
-                Промо
+              <span className="bg-noir px-2 py-1 text-[0.58rem] uppercase tracking-widest2 text-paper">
+                −{discount}%
               </span>
             )}
           </div>

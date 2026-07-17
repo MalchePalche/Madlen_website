@@ -34,6 +34,7 @@ export const NAV_LINKS = [
   { label: "Ново", href: "/novo" },
   { label: "Дамско", href: "/damsko" },
   { label: "Мъжко", href: "/muzhko" },
+  { label: "Намаления", href: "/namalenia" },
 ] as const;
 
 /** Product categories used for the homepage pills and collection filters. */
@@ -77,6 +78,7 @@ export const FOOTER_LINKS = [
       { label: "Мъжко", href: "/muzhko" },
       { label: "Дамско", href: "/damsko" },
       { label: "Нови продукти", href: "/novo" },
+      { label: "Намаления", href: "/namalenia" },
       { label: "Всички категории", href: "/novo" },
     ],
   },

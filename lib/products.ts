@@ -6,7 +6,14 @@ interface ProductQuery {
   gender?: Gender;
   category?: string;
   isNew?: boolean;
+  /** Only products carrying a valid strike-through original price (on sale). */
+  onSale?: boolean;
   limit?: number;
+}
+
+/** True when a product has a strike-through original price above its current price. */
+export function isOnSale(p: Product): boolean {
+  return p.compare_at_bgn != null && p.compare_at_bgn > p.price_bgn;
 }
 
 function filterMock(query: ProductQuery): Product[] {
@@ -16,6 +23,7 @@ function filterMock(query: ProductQuery): Product[] {
   }
   if (query.category) rows = rows.filter((p) => p.category === query.category);
   if (query.isNew) rows = rows.filter((p) => p.is_new);
+  if (query.onSale) rows = rows.filter(isOnSale);
   rows.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
   return typeof query.limit === "number" ? rows.slice(0, query.limit) : rows;
 }
@@ -35,11 +43,21 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
     if (query.gender) q = q.in("gender", [query.gender, "unisex"]);
     if (query.category) q = q.eq("category", query.category);
     if (query.isNew) q = q.eq("is_new", true);
-    if (typeof query.limit === "number") q = q.limit(query.limit);
+    if (query.onSale) q = q.not("compare_at_bgn", "is", null);
+    // PostgREST can't compare two columns, so the `compare_at_bgn > price_bgn`
+    // refinement runs in JS below — defer the limit until after that filter so
+    // we don't slice the set before the sale check trims it.
+    if (typeof query.limit === "number" && !query.onSale) q = q.limit(query.limit);
 
     const { data, error } = await q;
     if (error || !data || data.length === 0) return filterMock(query);
-    return data as Product[];
+
+    let rows = data as Product[];
+    if (query.onSale) {
+      rows = rows.filter(isOnSale);
+      if (typeof query.limit === "number") rows = rows.slice(0, query.limit);
+    }
+    return rows;
   } catch {
     return filterMock(query);
   }
@@ -59,6 +77,15 @@ export async function getNewArrivals(limit = 8): Promise<Product[]> {
   const fill = recent.filter((p) => !seen.has(p.id));
 
   return [...flagged, ...fill].slice(0, limit);
+}
+
+/**
+ * On-sale rail/collection: products whose `compare_at_bgn` sits above the
+ * current price. Ordered newest-first (getProducts default). Pass `limit` for
+ * the homepage rail; omit it for the full /namalenia collection.
+ */
+export async function getSaleProducts(limit?: number): Promise<Product[]> {
+  return getProducts({ onSale: true, limit });
 }
 
 /** A resolved Lookbook mosaic tile — label/link are fixed, image is dynamic. */

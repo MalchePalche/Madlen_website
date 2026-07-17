@@ -11,8 +11,8 @@ interface CollectionProps {
   eyebrow: string;
   title: string;
   description?: string;
-  /** Route base: a gender route, or the "new arrivals" route. */
-  base: { gender?: Gender; isNew?: boolean };
+  /** Route base: a gender route, the "new arrivals" route, or the sale route. */
+  base: { gender?: Gender; isNew?: boolean; onSale?: boolean };
   basePath: string;
   searchParams: SearchParams;
 }
