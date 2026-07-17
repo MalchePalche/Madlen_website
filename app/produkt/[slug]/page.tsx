@@ -5,6 +5,7 @@ import { ChevronRight } from "lucide-react";
 import { getProductBySlug, getRelatedProducts } from "@/lib/products";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { BuyPanel } from "@/components/product/BuyPanel";
+import { ProductReviews } from "@/components/product/ProductReviews";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
 
 // No generateStaticParams here: every slug is resolved on demand, so products
@@ -110,6 +111,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
         <ProductGallery images={product.images} alt={product.name_bg} />
         <BuyPanel product={product} />
       </div>
+
+      <ProductReviews productId={product.id} />
 
       <RelatedProducts products={related} />
     </article>

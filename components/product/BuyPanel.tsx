@@ -8,6 +8,7 @@ import { useCart } from "@/store/cart";
 import { BRAND, CATEGORIES, ONE_SIZE } from "@/lib/config";
 import { formatEUR, cn } from "@/lib/utils";
 import { Accordion } from "@/components/ui/Accordion";
+import { ReviewSummary } from "@/components/product/ReviewSummary";
 import { isInWishlist, toggleWishlist, WISHLIST_EVENT } from "@/lib/wishlist";
 
 /** The `days`-th business day after `from` (weekends skipped). */
@@ -183,6 +184,9 @@ export function BuyPanel({ product }: { product: Product }) {
           </>
         )}
       </div>
+
+      {/* rating summary — links down to the reviews section */}
+      <ReviewSummary productId={product.id} />
 
       {/* colour selector */}
       {product.colors.length > 0 && (
