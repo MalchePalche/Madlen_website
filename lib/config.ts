@@ -23,10 +23,6 @@ export const BRAND = {
     facebook: "https://www.facebook.com/profile.php?id=61575796677380",
     tiktok: "https://tiktok.com",
   },
-  stores: [
-    { city: "София", address: "бул. Витоша 12", hours: "Пон–Съб 10:00–20:00" },
-    { city: "Пловдив", address: "ул. Главна 45", hours: "Пон–Съб 10:00–19:00" },
-  ],
 } as const;
 
 /** Primary navigation tabs (left side of the navbar). */
